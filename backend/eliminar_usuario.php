@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recibimos el ID del usuario a eliminar
-$id = $_POST['id'] ?? '';
+$id = $_POST['id'] ?? 99999999;
 
 // Validamos que el id exista
 if (empty($id)) {

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recibimos el ID del vehiculo a eliminar.
-$id = $_POST['id'] ?? '';
+$id = $_POST['id'] ?? 99999;
 
 // nos fijamos que no este vacia
 if (empty($id)) {
