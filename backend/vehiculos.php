@@ -22,22 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recibimos los datos del formulario
-$idSucursal = $_POST['idSucursal'] ?? '';
+$idSucursal = $_POST['idSucursal'] ?? 1;
 $marca = $_POST['marca'] ?? '';
 $descripcion = $_POST['descripcion'] ?? '';
 $modelo = $_POST['modelo'] ?? '';
 $potencia = $_POST['potencia'] ?? 0;
-$estado = $_POST['estado'] ?? '';
+$estado = $_POST['estado'] ?? 0;
 $enlaceDocOficial = $_POST['enlaceDocOficial'] ?? '';
-$consumo = $_POST['consumo'] ?? '';
-$patente = $_POST['patente'] ?? '';
-$seguroSOA = $_POST['seguroSOA'] ?? '';
-$seguroTerceros = $_POST['seguroTerceros'] ?? '';
-$seguroTotal = $_POST['seguroTotal'] ?? '';
-$anio = $_POST['anio'] ?? '';
-$km = $_POST['km'] ?? '';
-$precioMinimo = $_POST['precioMinimo'] ?? '';
-$precio = $_POST['precio'] ?? '';
+$consumo = $_POST['consumo'] ?? 0;
+$patente = $_POST['patente'] ?? 0;
+$seguroSOA = $_POST['seguroSOA'] ?? 0;
+$seguroTerceros = $_POST['seguroTerceros'] ?? 0;
+$seguroTotal = $_POST['seguroTotal'] ?? 0;
+$anio = $_POST['anio'] ?? 0;
+$km = $_POST['km'] ?? 0;
+$precioMinimo = $_POST['precioMinimo'] ?? 0;
+$precio = $_POST['precio'] ?? 0;
 $categorias = $_POST['categorias'] ?? [];
 
 // Validamos campos obligatorios
