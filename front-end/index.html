@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneCar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Encabezado con la empresa "One Car" y el acceso al login -->
+    <header class="encabezado">
+        <span class="logo">OneCar</span>
+        <a href="login.html" class="boton-login">Iniciar sesión</a>
+    </header>
+
+    <!-- Seccion de bienvenida -->
+    <section class="hero">
+        <h1>Encontrá tu próximo auto</h1>
+    </section>
+
+    <section class="catalogo">
+        <h2>Vehículos disponibles</h2>
+        <!-- Se llena dinamicamente con las tarjetas de autos desde index.js -->
+        <div id="listaAutos" class="grilla-autos">
+        </div>
+    </section>
+
+    <footer class="pie">
+        <p>OneCar — Automotora</p>
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>

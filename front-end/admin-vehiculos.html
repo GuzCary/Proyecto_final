@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Vehículos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Vehículos</h1>
+     <!-- Le damos la bienvenida al usuario, este se completa por JS con el nombre del usuario logueado -->
+    <p>Bienvenido, <span id="nombreUsuario"></span></p>
+    <button id="btnLogout">Cerrar sesión</button>
+    <br><br>
+    <a href="admin.html">Volver al panel</a>
+
+    <h2>Listado de vehículos</h2>
+    <!-- Tabla que se llena desde admin-vehiculos.js -->
+    <table id="tablaVehiculos" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Año</th>
+                <th>Precio</th>
+                <th>Sucursal</th>
+                <th>Categorías</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoVehiculos">
+        </tbody>
+    </table>
+
+    <h2>Agregar vehículo</h2>
+    <form id="formVehiculo">
+        <label for="vIdSucursal">ID Sucursal</label>
+        <input type="number" id="vIdSucursal" name="idSucursal" required>
+
+        <label for="vMarca">Marca</label>
+        <input type="text" id="vMarca" name="marca" required>
+
+        <label for="vModelo">Modelo</label>
+        <input type="text" id="vModelo" name="modelo" required>
+
+        <label for="vDescripcion">Descripción</label>
+        <input type="text" id="vDescripcion" name="descripcion">
+
+        <label for="vAnio">Año</label>
+        <input type="number" id="vAnio" name="anio">
+
+        <label for="vKm">Kilómetros</label>
+        <input type="number" id="vKm" name="km">
+
+        <label for="vPatente">Patente</label>
+        <input type="text" id="vPatente" name="patente">
+
+        <label for="vPrecioMinimo">Precio mínimo</label>
+        <input type="number" id="vPrecioMinimo" name="precioMinimo" step="0.01">
+
+        <label for="vPrecio">Precio</label>
+        <input type="number" id="vPrecio" name="precio" step="0.01" required>
+
+        <label for="vCategorias">Categorías (podés elegir varias)</label>
+        <!-- Las opciones se cargan desde admin-vehiculos.js -->
+        <!-- El [] en el name ("categorias[]") hace que PHP reciba las categorias seleccionadas como array -->
+        <select id="vCategorias" name="categorias[]" multiple>
+        </select>
+
+        <input type="submit" value="Agregar vehículo">
+    </form>
+
+    <script src="auth.js"></script>
+    <script src="admin-vehiculos.js"></script>
+</body>
+</html>

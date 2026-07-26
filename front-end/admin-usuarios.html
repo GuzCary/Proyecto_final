@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Usuarios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Usuarios</h1>
+    <!-- Le damos la bienvenida al usuario, este se completa por JS con el nombre del usuario logueado -->
+    <p>Bienvenido, <span id="nombreUsuario"></span></p>
+    <button id="btnLogout">Cerrar sesión</button>
+    <br><br>
+    <a href="admin.html">Volver al panel</a>
+
+    <h2>Listado de usuarios</h2>
+    <!-- hacemos una tabla con los usuarios, que se llena desde admin-usuarios.js -->
+    <table id="tablaUsuarios" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Fecha de contrato</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoUsuarios">
+        </tbody>
+    </table>
+
+    <h2>Agregar usuario</h2>
+    <form id="formUsuario">
+        <label for="usuarioNombre">Usuario</label>
+        <input type="text" id="usuarioNombre" name="usuario" required>
+
+        <label for="usuarioPass">Contraseña</label>
+        <input type="password" id="usuarioPass" name="contrasenia" required>
+
+        <label for="usuarioRol">Rol</label>
+         <!-- revisamos que los value de las opciones coincidan con los roles que espera el backend -->
+        <select id="usuarioRol" name="rol" required>
+            <option value="admin">Admin</option>
+            <option value="user">Vendedor</option>
+            <option value="limp">Limpieza</option>
+        </select>
+
+        <input type="submit" value="Agregar usuario">
+    </form>
+
+    <script src="auth.js"></script>
+    <script src="admin-usuarios.js"></script>
+</body>
+</html>

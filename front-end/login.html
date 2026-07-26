@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Formulario de inicio de sesion, la logica de envio está en login.js -->
+    <form id="loginForm" method="post">
+        <label for="usuario">Usuario:</label>
+        <input type="text" id="usuario" name="usuario" placeholder="Usuario" required>
+
+        <label for="contrasenia">Contraseña:</label>
+        <input type="password" id="contrasenia" name="contrasenia" placeholder="Contraseña" required>
+
+        <input type="submit" value="Ingresar">
+    </form>
+
+    <br>
+    <a href="index.html">Volver</a>
+
+        
+    <script src="login.js"></script>
+</body>
+</html>

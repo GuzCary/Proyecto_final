@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Categorías</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Categorías</h1>
+    <p>Bienvenido, <span id="nombreUsuario"></span></p>
+    
+    <!--boton para cerrar sesión -->
+    <button id="btnLogout">Cerrar sesión</button>
+    <br><br>
+
+    <!--link para volver al panel principal de "admin.html" -->
+    <a href="admin.html">Volver al panel</a>
+
+    <h2>Listado de categorías</h2>
+
+    <!--acá tenemos la tabla donde se muestran las categorías ingresadas -->
+    <table id="tablaCategorias" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+
+       <!--se llena dinamicamente desde "admin-categorias.js" -->
+        <tbody id="cuerpoCategorias">
+        </tbody>
+    </table>
+
+    <h2>Agregar categoría</h2>
+    <form id="formCategoria">
+        <label for="catNombre">Nombre</label>
+
+        <!--pedimos agregar el nombre de la categoría como campo obligatorio -->
+        <input type="text" id="catNombre" name="nombre" required>
+
+        <!--botón que envia el formulario y agrega la categoría -->
+        <input type="submit" value="Agregar categoría">
+    </form>
+
+    <script src="auth.js"></script>
+    <script src="admin-categorias.js"></script>
+</body>
+</html>

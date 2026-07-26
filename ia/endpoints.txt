@@ -1,0 +1,409 @@
+GUIA RAPIDA DE ENDPOINTS DEL BACKEND
+=====================================
+
+URL base: http://localhost/backend/
+
+Todos los endpoints responden en JSON.
+El backend usa sesiones de PHP; el navegador maneja la cookie automaticamente.
+
+Roles del sistema:
+- admin  -> Administrador (gestiona vehiculos y categorias).
+- user   -> Vendedor. (por ahora no hace nada)
+- limp   -> Personal de limpieza. (por ahora no hace nada)
+
+Funciones actuales del backend:
+- login.php            : iniciar sesion.
+- auth.php             : verificar sesion activa.
+- logout.php           : cerrar sesion.
+- vehiculos.php        : agregar vehiculo (solo admin).
+- listar_vehiculos.php : obtener todos los vehiculos.
+- eliminar_vehiculo.php: eliminar vehiculo (solo admin).
+- categorias.php       : listar categorias (GET) / crear categoria (POST, solo admin).
+- eliminar_categoria.php: eliminar categoria (solo admin).
+- usuarios.php         : listar usuarios (GET) / crear usuario (POST, solo admin).
+- eliminar_usuario.php : eliminar usuario (solo admin).
+
+Datos de prueba:
+- admin     / admin123     -> admin
+- vendedor  / vendedor123  -> user
+- limpieza  / limpieza123  -> limp
+
+
+login.php
+Funcionalidad: valida usuario y contraseña e inicia sesion.
+
+Metodo: POST
+
+Parametros necesarios:
+- usuario     (string) : nombre de usuario.
+- contrasenia (string) : contraseña.
+
+Ejemplo de uso:
+const datos = new FormData();
+datos.append('usuario', 'admin');
+datos.append('contrasenia', 'admin123');
+
+fetch('http://localhost/backend/login.php', {
+  method: 'POST',
+  body: datos
+})
+.then(r => r.json())
+.then(data => console.log(data));
+
+Ejemplos de respuesta:
+
+Login correcto:
+{
+  "status": "success",
+  "message": "el usuario admin ingreso",
+  "rol": "admin"
+}
+
+Login incorrecto:
+{
+  "status": "error",
+  "message": "Usuario o contraseña incorrectos."
+}
+
+
+auth.php
+Funcionalidad: devuelve si hay una sesion activa y los datos del usuario.
+
+Metodo: GET
+
+Parametros necesarios: ninguno.
+
+Ejemplo de uso:
+fetch('http://localhost/backend/auth.php')
+  .then(r => r.json())
+  .then(data => console.log(data));
+
+Ejemplos de respuesta:
+
+Con sesion activa:
+{
+  "status": "success",
+  "logueado": true,
+  "usuario_id": 1,
+  "usuario_nombre": "admin",
+  "usuario_rol": "admin"
+}
+
+Sin sesion:
+{
+  "status": "success",
+  "logueado": false
+}
+
+
+logout.php
+Funcionalidad: cierra la sesion del usuario actual.
+
+Metodo: GET
+
+Parametros necesarios: ninguno.
+
+Ejemplo de uso:
+fetch('http://localhost/backend/logout.php')
+  .then(r => r.json())
+  .then(data => console.log(data));
+
+Ejemplo de respuesta:
+{
+  "status": "success",
+  "message": "Sesion cerrada correctamente."
+}
+
+
+vehiculos.php
+Funcionalidad: agrega un nuevo vehiculo al inventario. Solo admin.
+
+Metodo: POST
+
+Parametros necesarios:
+- idSucursal (number) : ID de la sucursal (actualmente solo existe la 1).
+- marca      (string) : marca del vehiculo.
+- modelo     (string) : modelo del vehiculo.
+- patente    (string) : patente del vehiculo.
+- precio     (number) : precio de venta.
+
+Parametros opcionales:
+- descripcion, potencia, estado, enlaceDocOficial, consumo,
+  seguroSOA, seguroTerceros, seguroTotal, anio, km, precioMinimo.
+- categorias[] (array de IDs) : categorias asociadas al vehiculo.
+
+Ejemplo de uso:
+const datos = new FormData();
+datos.append('idSucursal', '1');
+datos.append('marca', 'Kia');
+datos.append('modelo', 'Picanto');
+datos.append('patente', 'ABC1234');
+datos.append('precio', '10000');
+datos.append('anio', '2020');
+datos.append('categorias[]', '1');
+datos.append('categorias[]', '2');
+
+fetch('http://localhost/backend/vehiculos.php', {
+  method: 'POST',
+  body: datos
+})
+.then(r => r.json())
+.then(data => console.log(data));
+
+Ejemplos de respuesta:
+
+Exitoso:
+{
+  "status": "success",
+  "message": "Vehiculo agregado correctamente."
+}
+
+Sin permisos:
+{
+  "status": "error",
+  "message": "Acceso denegado. Se requiere rol de administrador."
+}
+
+
+listar_vehiculos.php
+Funcionalidad: devuelve todos los vehiculos del inventario. Es publico.
+
+Metodo: GET
+
+Parametros necesarios: ninguno.
+
+Ejemplo de uso:
+fetch('http://localhost/backend/listar_vehiculos.php')
+  .then(r => r.json())
+  .then(data => console.log(data));
+
+Ejemplo de respuesta:
+{
+  "status": "success",
+  "cantidad": 1,
+  "vehiculos": [
+    {
+      "id": 1,
+      "marca": "Kia",
+      "modelo": "Picanto",
+      "descripcion": "Excelente estado",
+      "patente": "ABC1234",
+      "anio": 2020,
+      "km": 45000,
+      "precio": 10000,
+      "precioMinimo": 9000,
+      "potencia": 120,
+      "consumo": 15.5,
+      "estado": 10,
+      "sucursal": "Sucursal Central",
+      "categorias": [
+        { "id": 1, "nombre": "Compacto" }
+      ]
+    }
+  ]
+}
+
+
+eliminar_vehiculo.php
+Funcionalidad: elimina un vehiculo del inventario. Solo admin.
+
+Metodo: POST
+
+Parametros necesarios:
+- id (number) : ID del vehiculo a eliminar.
+
+Ejemplo de uso:
+const datos = new FormData();
+datos.append('id', '1');
+
+fetch('http://localhost/backend/eliminar_vehiculo.php', {
+  method: 'POST',
+  body: datos
+})
+.then(r => r.json())
+.then(data => console.log(data));
+
+Ejemplos de respuesta:
+
+Exitoso:
+{
+  "status": "success",
+  "message": "Vehiculo eliminado correctamente."
+}
+
+No encontrado:
+{
+  "status": "error",
+  "message": "No se encontro el vehiculo."
+}
+
+
+ categorias.php
+Funcionalidad: lista todas las categorias (GET) o crea una nueva (POST). Solo admin para POST.
+
+Metodo: GET / POST
+
+Parametros necesarios:
+- GET : ninguno.
+- POST: nombre (string) : nombre de la nueva categoria.
+
+Ejemplo de uso GET:
+fetch('http://localhost/backend/categorias.php')
+  .then(r => r.json())
+  .then(data => console.log(data));
+
+Ejemplo de respuesta GET:
+{
+  "status": "success",
+  "categorias": [
+    { "id": 1, "nombre": "SUV" },
+    { "id": 2, "nombre": "Deportivo" }
+  ]
+}
+
+Ejemplo de uso POST:
+const datos = new FormData();
+datos.append('nombre', 'Electrico');
+
+fetch('http://localhost/backend/categorias.php', {
+  method: 'POST',
+  body: datos
+})
+.then(r => r.json())
+.then(data => console.log(data));
+
+Ejemplo de respuesta POST:
+{
+  "status": "success",
+  "message": "Categoria agregada correctamente."
+}
+
+
+eliminar_categoria.php
+Funcionalidad: elimina una categoria y sus relaciones con vehiculos. Solo admin.
+
+Metodo: POST
+
+Parametros necesarios:
+- id (number) : ID de la categoria a eliminar.
+
+Ejemplo de uso:
+const datos = new FormData();
+datos.append('id', '1');
+
+fetch('http://localhost/backend/eliminar_categoria.php', {
+  method: 'POST',
+  body: datos
+})
+.then(r => r.json())
+.then(data => console.log(data));
+
+Ejemplos de respuesta:
+
+Exitoso:
+{
+  "status": "success",
+  "message": "Categoria eliminada correctamente."
+}
+
+No encontrada:
+{
+  "status": "error",
+  "message": "No se encontro la categoria."
+}
+
+
+usuarios.php
+Funcionalidad: lista todos los usuarios (GET) o crea uno nuevo (POST). Solo admin.
+
+Metodo: GET / POST
+
+Parametros necesarios:
+- GET : ninguno.
+- POST:
+  - usuario     (string) : nombre del nuevo usuario.
+  - contrasenia (string) : contraseña del nuevo usuario.
+  - rol         (string) : rol del usuario ('admin', 'user', 'limp').
+
+Ejemplo de uso GET:
+fetch('http://localhost/backend/usuarios.php')
+  .then(r => r.json())
+  .then(data => console.log(data));
+
+Ejemplo de respuesta GET:
+{
+  "status": "success",
+  "usuarios": [
+    {
+      "id": 1,
+      "usuario": "admin",
+      "rol": "admin",
+      "fechaDeContrato": "2020-01-15"
+    },
+    {
+      "id": 2,
+      "usuario": "vendedor",
+      "rol": "user",
+      "fechaDeContrato": "2021-03-10"
+    }
+  ]
+}
+
+Ejemplo de uso POST:
+const datos = new FormData();
+datos.append('usuario', 'nuevo_usuario');
+datos.append('contrasenia', 'clave123');
+datos.append('rol', 'user');
+
+fetch('http://localhost/backend/usuarios.php', {
+  method: 'POST',
+  body: datos
+})
+.then(r => r.json())
+.then(data => console.log(data));
+
+Ejemplo de respuesta POST:
+{
+  "status": "success",
+  "message": "Usuario agregado correctamente."
+}
+
+
+eliminar_usuario.php
+Funcionalidad: elimina un usuario y todas sus relaciones en cascada. Solo admin.
+
+Metodo: POST
+
+Parametros necesarios:
+- id (number) : ID del usuario a eliminar.
+
+Ejemplo de uso:
+const datos = new FormData();
+datos.append('id', '4');
+
+fetch('http://localhost/backend/eliminar_usuario.php', {
+  method: 'POST',
+  body: datos
+})
+.then(r => r.json())
+.then(data => console.log(data));
+
+Ejemplos de respuesta:
+
+Exitoso:
+{
+  "status": "success",
+  "message": "Usuario eliminado correctamente."
+}
+
+No encontrado:
+{
+  "status": "error",
+  "message": "No se encontro el usuario."
+}
+
+Intento de auto-eliminacion:
+{
+  "status": "error",
+  "message": "No podés eliminar tu propio usuario."
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Panel de Admin</h1>
+    <!-- Se completa por JS con el nombre del usuario logueado -->
+    <p>Bienvenido, <span id="nombreUsuario"></span></p>
+    <button id="btnLogout">Cerrar sesión</button>
+
+    <!-- Enlaces a las distintas secciones del panel de administracion -->
+    <nav>
+        <a href="admin-usuarios.html">Usuarios</a>
+        <a href="admin-vehiculos.html">Vehiculos</a>
+        <a href="admin-categorias.html">Categorias</a>
+    </nav>
+
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
