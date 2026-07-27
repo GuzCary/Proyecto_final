@@ -10,7 +10,7 @@ session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
 
-// Si existe, devolvemos los datos del usuario logueado
+// Si existe, devolvemos los datos del usuario logueado.
 if (isset($_SESSION['usuario_id'])) {
     echo json_encode([
         "status" => "success",
