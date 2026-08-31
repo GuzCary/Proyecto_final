@@ -82,6 +82,7 @@ function cargarCategorias() {
 }
 
 const formVehiculo = document.getElementById("formVehiculo");
+const modalAgregar = document.getElementById("modalAgregar");
 
 // Al enviar el formulario, mandamos los datos al backend para crear el vehiculo
 formVehiculo.addEventListener("submit", (e) => {
@@ -96,6 +97,7 @@ formVehiculo.addEventListener("submit", (e) => {
         .then(resultado => {
             if (resultado.status === "success") {
                 formVehiculo.reset();
+                cerrarModalAgregar();
                 cargarVehiculos();
             } else {
                 alert(resultado.message);
@@ -103,6 +105,17 @@ formVehiculo.addEventListener("submit", (e) => {
         })
         .catch(err => console.error("Error al agregar vehiculo:", err));
 });
+
+// Abre el modal de agregar vehiculo
+function abrirModalAgregar() {
+    modalAgregar.style.display = "block";
+}
+
+// Cierra el modal de agregar vehiculo
+function cerrarModalAgregar() {
+    modalAgregar.style.display = "none";
+    formVehiculo.reset();
+}
 
 // Abre el modal y carga los datos del vehiculo a modificar
 function abrirModal(idEncriptado) {
