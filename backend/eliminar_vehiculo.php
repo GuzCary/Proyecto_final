@@ -6,8 +6,9 @@
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-//incuimos la conexion a la db
+//incuimos la conexion a la db y las funciones de encriptacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/encriptar.php';
 
 // Verificamos que el usuario este logueado y sea administrador.
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -21,12 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Recibimos el ID del vehiculo a eliminar.
-$id = $_POST['id'] ?? 99999;
+// Recibimos el ID encriptado del vehiculo a eliminar.
+$idEncriptado = $_POST['id'] ?? '';
 
 // nos fijamos que no este vacia
-if (empty($id)) {
+if (empty($idEncriptado)) {
     echo json_encode(["status" => "error", "message" => "ID de vehiculo no proporcionado."]);
+    exit;
+}
+
+$id = desencriptar($idEncriptado);
+if ($id === false || $id === '') {
+    echo json_encode(["status" => "error", "message" => "ID de vehiculo invalido."]);
     exit;
 }
 

@@ -13,8 +13,8 @@ require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/encriptar.php'; 
 
 // Verificamos que el usuario este logueado y sea administrador
-if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'user') {
-    echo json_encode(["status" => "error", "message" => "Acceso denegado. Se requiere rol de vendedor."]);
+if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
+    echo json_encode(["status" => "error", "message" => "Acceso denegado. Se requiere rol de administrador."]);
     exit;
 }
 

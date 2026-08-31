@@ -76,6 +76,103 @@
         <input type="submit" value="Agregar vehículo">
     </form>
 
+    <!-- Modal para modificar vehiculo -->
+    <div id="modalEditar" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000; overflow:auto;">
+        <div style="background:#fff; margin:5% auto; padding:20px; width:90%; max-width:600px; border-radius:8px; position:relative;">
+            <h3>Editar datos del vehiculo</h3>
+            <button type="button" onclick="cerrarModal()" style="position:absolute; top:10px; right:10px;">X</button>
+
+            <form id="formModificar">
+                <input type="hidden" id="edit_id" name="id">
+                <input type="hidden" id="edit_idSucursal" name="idSucursal">
+
+                <p>
+                    <label>Marca:</label><br>
+                    <input type="text" id="edit_marca" name="marca" required>
+                </p>
+
+                <p>
+                    <label>Modelo:</label><br>
+                    <input type="text" id="edit_modelo" name="modelo" required>
+                </p>
+
+                <p>
+                    <label>Patente:</label><br>
+                    <input type="text" id="edit_patente" name="patente">
+                </p>
+
+                <p>
+                    <label>Año:</label><br>
+                    <input type="number" id="edit_anio" name="anio">
+                </p>
+
+                <p>
+                    <label>Kilometros (km):</label><br>
+                    <input type="number" id="edit_km" name="km">
+                </p>
+
+                <p>
+                    <label>Precio de Venta ($):</label><br>
+                    <input type="number" id="edit_precio" name="precio">
+                </p>
+
+                <p>
+                    <label>Precio Minimo ($):</label><br>
+                    <input type="number" id="edit_precioMinimo" name="precioMinimo">
+                </p>
+
+                <p>
+                    <label>Potencia (HP):</label><br>
+                    <input type="number" id="edit_potencia" name="potencia">
+                </p>
+
+                <p>
+                    <label>Consumo (L/100km):</label><br>
+                    <input type="number" step="0.1" id="edit_consumo" name="consumo">
+                </p>
+
+                <p>
+                    <label>Estado (0 = Inactivo / 1 = Activo):</label><br>
+                    <input type="number" id="edit_estado" name="estado">
+                </p>
+
+                <p>
+                    <label>Enlace Documento Oficial:</label><br>
+                    <input type="text" id="edit_enlaceDocOficial" name="enlaceDocOficial">
+                </p>
+
+                <p>
+                    <label>Seguro SOA ($):</label><br>
+                    <input type="number" id="edit_seguroSOA" name="seguroSOA">
+                </p>
+
+                <p>
+                    <label>Seguro Terceros ($):</label><br>
+                    <input type="number" id="edit_seguroTerceros" name="seguroTerceros">
+                </p>
+
+                <p>
+                    <label>Seguro Total ($):</label><br>
+                    <input type="number" id="edit_seguroTotal" name="seguroTotal">
+                </p>
+
+                <p>
+                    <label>Descripcion:</label><br>
+                    <textarea id="edit_descripcion" name="descripcion" rows="4" cols="40"></textarea>
+                </p>
+
+                <p>
+                    <label><strong>Categorias:</strong></label><br>
+                    <div id="contenedorCategorias">Cargando categorias...</div>
+                </p>
+
+                <br>
+                <button type="submit">Guardar Cambios</button>
+                <button type="button" onclick="cerrarModal()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
     <script src="auth.js"></script>
     <script src="admin-vehiculos.js"></script>
 </body>
