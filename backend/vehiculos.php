@@ -93,6 +93,26 @@ try {
         }
     }
 
+
+    $form = $_FILES["file"]["tmp_name"];
+    $to = __DIR__ . "/../img/$idVehiculo.jpg";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     echo json_encode(["status" => "success", "message" => "Vehiculo agregado correctamente."]);
 
 } catch (PDOException $e) {

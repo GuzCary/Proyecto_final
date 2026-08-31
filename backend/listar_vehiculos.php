@@ -3,9 +3,14 @@
 // Este endpoint devuelve la informacion de todos los vehiculos del inventario
 // Es publico
 
+
+
 header("Content-Type: application/json; charset=UTF-8");
-//incuimos la conexion a la db
+// incuimos la conexion a la db
 require_once __DIR__ . '/../config/conexion.php';
+
+// incluimos el archivo de encriptacion
+require_once __DIR__ . '/encriptar.php'; 
 
 try {
     // Consultamos todos los vehiculos con el nombre de la sucursal
@@ -45,6 +50,7 @@ try {
         ");
         $stmtCat->execute([':idVehiculo' => $vehiculo['id']]);
         $vehiculo['categorias'] = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
+        $vehiculo['id'] = encriptar($vehiculo['id']);
     }
     
     //devolvemos los datos obtenidos

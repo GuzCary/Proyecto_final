@@ -7,5 +7,6 @@
 //   DB_NAME=
 //   DB_USER=
 //   DB_PASS=
+//   CLAVE=  
 
 return parse_ini_file(__DIR__ . '/../.env');
