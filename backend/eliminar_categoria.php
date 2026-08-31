@@ -6,8 +6,9 @@
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// incluimos la conexion a la db
+// incluimos la conexion a la db y las funciones de encriptacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/encriptar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -21,12 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Recibimos el ID de la categoria a eliminar
-$id = $_POST['id'] ?? 99999999;
+// Recibimos el ID encriptado de la categoria a eliminar
+$idEncriptado = $_POST['id_encriptado'] ?? '';
 
 // nos fijamos que el id exista
-if (empty($id)) {
+if (empty($idEncriptado)) {
     echo json_encode(["status" => "error", "message" => "ID de categoria no proporcionado."]);
+    exit;
+}
+
+$id = desencriptar($idEncriptado);
+if ($id === false || $id === '') {
+    echo json_encode(["status" => "error", "message" => "ID de categoria invalido."]);
     exit;
 }
 

@@ -25,19 +25,26 @@ function cargarCategorias() {
 function mostrarCategorias(categorias) {
     const cuerpo = document.getElementById("cuerpoCategorias");
 
-    // generamos una fila para cada categoria, acompañado de un boton para eliminarla
+    // generamos una fila para cada categoria, con botones para editar y eliminar
     cuerpo.innerHTML = categorias.map((categoria) => `
         <tr>
-            <td>${categoria.id}</td>
             <td>${categoria.nombre}</td>
-            <td><button onclick="eliminarCategoria(${categoria.id})">Eliminar</button></td>
+            <td>
+                <button onclick="editarCategoria('${categoria.id_encriptado}', '${categoria.nombre.replace(/'/g, "\\'")}')">Editar</button>
+                <button onclick="eliminarCategoria('${categoria.id_encriptado}')">Eliminar</button>
+            </td>
         </tr>
     `).join("");
 }
 
 const formCategoria = document.getElementById("formCategoria");
+const inputIdEncriptado = document.getElementById("idEncriptado");
+const inputNombre = document.getElementById("catNombre");
+const tituloFormulario = document.getElementById("tituloFormulario");
+const btnSubmit = document.getElementById("btnSubmit");
+const btnCancelar = document.getElementById("btnCancelar");
 
-// al enviar el formulario, mandamos los datos al backend para crear la categoria
+// al enviar el formulario, mandamos los datos al backend para crear o actualizar la categoria
 formCategoria.addEventListener("submit", (e) => {
     e.preventDefault();
     const datos = new FormData(formCategoria);
@@ -49,9 +56,8 @@ formCategoria.addEventListener("submit", (e) => {
         .then(res => res.json())
         .then(resultado => {
             if (resultado.status === "success") {
-
-                 // si la categoria se agregó bien, limpiamos el formulario y refrescamos la tabla
-                formCategoria.reset();
+                // si la categoria se guardó bien, limpiamos el formulario y refrescamos la tabla
+                cancelarEdicion();
                 cargarCategorias();
             } else {
                 alert(resultado.message);
@@ -59,14 +65,34 @@ formCategoria.addEventListener("submit", (e) => {
         });
 });
 
-// elimina una categoria por su id, por seguridad, pedimos confirmacion antes
-function eliminarCategoria(id) {
+// carga los datos de la categoria en el formulario para editarla
+function editarCategoria(idEncriptado, nombre) {
+    inputIdEncriptado.value = idEncriptado;
+    inputNombre.value = nombre;
+    tituloFormulario.textContent = "Modificar categoría";
+    btnSubmit.value = "Guardar cambios";
+    btnCancelar.style.display = "inline";
+}
+
+// limpia el formulario y vuelve al modo agregar
+function cancelarEdicion() {
+    formCategoria.reset();
+    inputIdEncriptado.value = "";
+    tituloFormulario.textContent = "Agregar categoría";
+    btnSubmit.value = "Agregar categoría";
+    btnCancelar.style.display = "none";
+}
+
+btnCancelar.addEventListener("click", cancelarEdicion);
+
+// elimina una categoria por su id encriptado, por seguridad, pedimos confirmacion antes
+function eliminarCategoria(idEncriptado) {
     if (!confirm("¿Seguro que querés eliminar esta categoría?")) {
         return;
     }
 
     const datos = new FormData();
-    datos.append("id", id);
+    datos.append("id_encriptado", idEncriptado);
 
     fetch("../backend/eliminar_categoria.php", {
         method: "POST",

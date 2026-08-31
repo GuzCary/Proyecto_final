@@ -23,7 +23,6 @@
     <table id="tablaCategorias" border="1">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Nombre</th>
                 <th>Acción</th>
             </tr>
@@ -34,15 +33,19 @@
         </tbody>
     </table>
 
-    <h2>Agregar categoría</h2>
+    <h2 id="tituloFormulario">Agregar categoría</h2>
     <form id="formCategoria">
+        <!-- campo oculto para guardar el id encriptado cuando editamos -->
+        <input type="hidden" id="idEncriptado" name="id_encriptado">
+
         <label for="catNombre">Nombre</label>
 
         <!--pedimos agregar el nombre de la categoría como campo obligatorio -->
         <input type="text" id="catNombre" name="nombre" required>
 
-        <!--botón que envia el formulario y agrega la categoría -->
-        <input type="submit" value="Agregar categoría">
+        <!--botón que envia el formulario y agrega o actualiza la categoría -->
+        <input type="submit" id="btnSubmit" value="Agregar categoría">
+        <button type="button" id="btnCancelar" style="display:none;">Cancelar edición</button>
     </form>
 
     <script src="auth.js"></script>

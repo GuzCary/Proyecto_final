@@ -7,8 +7,9 @@
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// incluimos la conexion a la db
+// incluimos la conexion a la db y las funciones de encriptacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/encriptar.php';
 
 // Si la peticion es GET, devolvemos todas las categorias
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -17,6 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt = $con->prepare("SELECT id, nombre FROM Categoria ORDER BY nombre ASC");
         $stmt->execute();
         $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // encriptamos los ids antes de enviarlos al frontend
+        foreach ($categorias as &$categoria) {
+            $categoria['id_encriptado'] = encriptar($categoria['id']);
+        }
+        unset($categoria);
 
         echo json_encode([
             "status" => "success",
@@ -36,17 +43,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $nombre = trim($_POST['nombre'] ?? '');
-     // nos fijamos que tenga nombre
+    $idEncriptado = $_POST['id_encriptado'] ?? '';
+
+    // nos fijamos que tenga nombre
     if (empty($nombre)) {
         echo json_encode(["status" => "error", "message" => "El nombre de la categoria es obligatorio."]);
         exit;
     }
 
     try {
-        $stmt = $con->prepare("INSERT INTO Categoria (nombre) VALUES (:nombre)");
-        $stmt->execute([':nombre' => $nombre]);
+        // si llega un id encriptado, actualizamos la categoria existente
+        if (!empty($idEncriptado)) {
+            $id = desencriptar($idEncriptado);
+            if ($id === false || $id === '') {
+                echo json_encode(["status" => "error", "message" => "ID de categoria invalido."]);
+                exit;
+            }
 
-        echo json_encode(["status" => "success", "message" => "Categoria agregada correctamente."]);
+            $stmt = $con->prepare("UPDATE Categoria SET nombre = :nombre WHERE id = :id");
+            $stmt->execute([':nombre' => $nombre, ':id' => $id]);
+
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(["status" => "success", "message" => "Categoria actualizada correctamente."]);
+            } else {
+                echo json_encode(["status" => "success", "message" => "No se realizaron cambios."]);
+            }
+        } else {
+            // si no hay id, creamos una nueva categoria
+            $stmt = $con->prepare("INSERT INTO Categoria (nombre) VALUES (:nombre)");
+            $stmt->execute([':nombre' => $nombre]);
+
+            echo json_encode(["status" => "success", "message" => "Categoria agregada correctamente."]);
+        }
     } catch (PDOException $e) {
         echo json_encode(["status" => "error", "message" => "Error al guardar la categoria: " . $e->getMessage()]);
     }
