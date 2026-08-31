@@ -13,7 +13,7 @@ function mostrarAutos(vehiculos) {
 
     // Si no hay vehiculos, mostramos un mensaje para no dejar la seccion vacia
     if (vehiculos.length === 0) {
-        lista.innerHTML = "<p>No hay vehículos disponibles por el momento.</p>";
+        lista.innerHTML = "<p>No hay vehiculos disponibles por el momento.</p>";
         return;
     }
 
@@ -21,8 +21,19 @@ function mostrarAutos(vehiculos) {
         // Cada vehiculo trae un array de categorias, armamos un string con los nombres
         const nombresCategorias = vehiculo.categorias.map(c => c.nombre).join(", ");
 
+        // Armamos el HTML de las imagenes
+        let imagenesHTML = "";
+        if (vehiculo.imagenes && vehiculo.imagenes.length > 0) {
+            imagenesHTML = `<div class="galeria-auto">` +
+                vehiculo.imagenes.map(img => `<img src="../img/${img}" alt="Foto de ${vehiculo.marca} ${vehiculo.modelo}" style="width:100%; max-width:200px; margin:4px;">`).join("") +
+                `</div>`;
+        } else {
+            imagenesHTML = `<p><em>Sin fotos</em></p>`;
+        }
+
         return `
             <article class="tarjeta-auto">
+                ${imagenesHTML}
                 <h3>${vehiculo.marca} ${vehiculo.modelo}</h3>
                 <p class="anio">${vehiculo.anio ?? ""}</p>
                 <p class="descripcion">${vehiculo.descripcion ?? ""}</p>

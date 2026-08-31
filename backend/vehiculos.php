@@ -93,11 +93,17 @@ try {
         }
     }
 
-    // Si se subio una imagen, la guardamos
-    if (isset($_FILES["file"]) && $_FILES["file"]["error"] === UPLOAD_ERR_OK) {
-        $tmpName = $_FILES["file"]["tmp_name"];
-        $to = __DIR__ . "/../img/" . $idVehiculo . ".jpg";
-        move_uploaded_file($tmpName, $to);
+    // Si se subieron imagenes, las guardamos con formato idVehiculo_numero.jpg
+    if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"])) {
+        $cantidad = count($_FILES["files"]["name"]);
+        for ($i = 0; $i < $cantidad; $i++) {
+            if ($_FILES["files"]["error"][$i] === UPLOAD_ERR_OK) {
+                $tmpName = $_FILES["files"]["tmp_name"][$i];
+                $numero = $i + 1;
+                $to = __DIR__ . "/../img/" . $idVehiculo . "_" . $numero . ".jpg";
+                move_uploaded_file($tmpName, $to);
+            }
+        }
     }
 
     echo json_encode(["status" => "success", "message" => "Vehiculo agregado correctamente."]);

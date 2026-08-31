@@ -50,10 +50,23 @@ try {
         ");
         $stmtCat->execute([':idVehiculo' => $vehiculo['id']]);
         $vehiculo['categorias'] = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
+
+        // Buscamos las imagenes del vehiculo con formato id_numero.jpg
+        $vehiculo['imagenes'] = [];
+        $imgDir = __DIR__ . '/../img/';
+        if (is_dir($imgDir)) {
+            $archivos = scandir($imgDir);
+            foreach ($archivos as $archivo) {
+                if (preg_match('/^' . $vehiculo['id'] . '_(\d+)\.jpg$/', $archivo)) {
+                    $vehiculo['imagenes'][] = $archivo;
+                }
+            }
+            sort($vehiculo['imagenes']);
+        }
+
         $vehiculo['id'] = encriptar($vehiculo['id']);
     }
-    
-    //devolvemos los datos obtenidos
+    unset($vehiculo);
     echo json_encode([
         "status" => "success",
         "cantidad" => count($vehiculos),
