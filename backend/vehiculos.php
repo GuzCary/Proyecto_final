@@ -82,7 +82,7 @@ try {
     $idVehiculo = $con->lastInsertId();
 
     // Si se seleccionaron categorias, las asociamos al vehiculo en "Tiene"
-    if (!empty($categorias)) {
+    if (!empty($categorias) && is_array($categorias)) {
         $stmtTiene = $con->prepare("INSERT INTO Tiene (idVehiculo, idCategoria) VALUES (:idVehiculo, :idCategoria)");
 
         foreach ($categorias as $idCategoria) {
@@ -93,25 +93,12 @@ try {
         }
     }
 
-
-    $form = $_FILES["file"]["tmp_name"];
-    $to = __DIR__ . "/../img/$idVehiculo.jpg";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // Si se subio una imagen, la guardamos
+    if (isset($_FILES["file"]) && $_FILES["file"]["error"] === UPLOAD_ERR_OK) {
+        $tmpName = $_FILES["file"]["tmp_name"];
+        $to = __DIR__ . "/../img/" . $idVehiculo . ".jpg";
+        move_uploaded_file($tmpName, $to);
+    }
 
     echo json_encode(["status" => "success", "message" => "Vehiculo agregado correctamente."]);
 

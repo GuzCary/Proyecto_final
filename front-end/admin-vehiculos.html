@@ -33,7 +33,7 @@
         </tbody>
     </table>
 
-    <h2>Agregar vehículo</h2>
+    <h2>Agregar vehiculo</h2>
     <form id="formVehiculo">
         <label for="vIdSucursal">ID Sucursal</label>
         <input type="number" id="vIdSucursal" name="idSucursal" required>
@@ -44,36 +44,56 @@
         <label for="vModelo">Modelo</label>
         <input type="text" id="vModelo" name="modelo" required>
 
-        <label for="vDescripcion">Descripción</label>
+        <label for="vDescripcion">Descripcion</label>
         <input type="text" id="vDescripcion" name="descripcion">
 
-        <label for="vAnio">Año</label>
-        <input type="number" id="vAnio" name="anio">
+        <label for="vPotencia">Potencia (HP)</label>
+        <input type="number" id="vPotencia" name="potencia">
 
-        <label for="vKm">Kilómetros</label>
-        <input type="number" id="vKm" name="km">
+        <label for="vEstado">Estado (1 a 10)</label>
+        <input type="number" id="vEstado" name="estado" min="1" max="10">
+
+        <label for="vEnlaceDocOficial">Enlace Documento Oficial</label>
+        <input type="text" id="vEnlaceDocOficial" name="enlaceDocOficial">
+
+        <label for="vConsumo">Consumo (L/100km)</label>
+        <input type="number" step="0.1" id="vConsumo" name="consumo">
 
         <label for="vPatente">Patente</label>
         <input type="text" id="vPatente" name="patente">
 
-        <label for="vPrecioMinimo">Precio mínimo</label>
+        <label for="vSeguroSOA">Seguro SOA ($)</label>
+        <input type="number" step="0.01" id="vSeguroSOA" name="seguroSOA">
+
+        <label for="vSeguroTerceros">Seguro Terceros ($)</label>
+        <input type="number" step="0.01" id="vSeguroTerceros" name="seguroTerceros">
+
+        <label for="vSeguroTotal">Seguro Total ($)</label>
+        <input type="number" step="0.01" id="vSeguroTotal" name="seguroTotal">
+
+        <label for="vAnio">Año</label>
+        <input type="number" id="vAnio" name="anio">
+
+        <label for="vKm">Kilometros</label>
+        <input type="number" id="vKm" name="km">
+
+        <label for="vPrecioMinimo">Precio minimo</label>
         <input type="number" id="vPrecioMinimo" name="precioMinimo" step="0.01">
 
         <label for="vPrecio">Precio</label>
         <input type="number" id="vPrecio" name="precio" step="0.01" required>
 
-        <label for="vCategorias">Categorías (podés elegir varias)</label>
+        <label for="vCategorias">Categorias (podes elegir varias)</label>
         <!-- Las opciones se cargan desde admin-vehiculos.js -->
         <!-- El [] en el name ("categorias[]") hace que PHP reciba las categorias seleccionadas como array -->
         <select id="vCategorias" name="categorias[]" multiple>
     
         </select>
 
-        <label for="file">imagen</label>
+        <label for="file">Imagen</label>
         <input type="file" name="file" id="file">
 
-
-        <input type="submit" value="Agregar vehículo">
+        <input type="submit" value="Agregar vehiculo">
     </form>
 
     <!-- Modal para modificar vehiculo -->
