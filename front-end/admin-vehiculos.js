@@ -211,7 +211,17 @@ formModificar.addEventListener("submit", (e) => {
     })
         .then(res => res.json())
         .then(resultado => {
-            alert(resultado.message);
+            console.log("Respuesta modificar vehiculo:", resultado);
+            if (resultado.debug) {
+                console.log("Debug imagenes:", JSON.stringify(resultado.debug, null, 2));
+            }
+
+            let mensaje = resultado.message;
+            if (resultado.errores_imagenes && resultado.errores_imagenes.length > 0) {
+                mensaje += "\n\nErrores de imagenes:\n" + resultado.errores_imagenes.join("\n");
+            }
+            alert(mensaje);
+
             if (resultado.status === "success") {
                 cerrarModal();
                 cargarVehiculos();
