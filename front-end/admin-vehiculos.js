@@ -164,6 +164,24 @@ function abrirModal(idEncriptado) {
         }).join("");
     }
 
+    // Renderizamos las imagenes actuales con opcion de eliminar
+    const contenedorImg = document.getElementById("contenedorImagenes");
+    contenedorImg.innerHTML = "";
+
+    const imagenesActuales = vehiculoSeleccionado.imagenes || [];
+
+    if (imagenesActuales.length === 0) {
+        contenedorImg.innerHTML = "<p>No hay imagenes para este vehiculo.</p>";
+    } else {
+        contenedorImg.innerHTML = imagenesActuales.map(img => `
+            <label style="display: inline-block; margin: 5px; text-align: center; vertical-align: top;">
+                <img src="../img/${escaparHTML(img)}" width="100" style="display: block; border-radius: 4px;"><br>
+                <input type="checkbox" name="eliminarImagenes[]" value="${escaparHTML(img)}">
+                Eliminar
+            </label>
+        `).join("");
+    }
+
     document.getElementById("modalEditar").style.display = "block";
 }
 

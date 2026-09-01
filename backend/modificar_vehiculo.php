@@ -130,9 +130,83 @@ try {
         }
     }
 
+    // --- Manejo de imagenes ---
+    $imgDir = __DIR__ . '/../img/';
+    $erroresImg = [];
+
+    // Creamos el directorio si no existe
+    if (!is_dir($imgDir)) {
+        if (!mkdir($imgDir, 0755, true)) {
+            $erroresImg[] = "No se pudo crear el directorio de imagenes.";
+        }
+    }
+
+    // Eliminamos las imagenes marcadas para borrar
+    if (!empty($_POST['eliminarImagenes']) && is_array($_POST['eliminarImagenes']) && is_dir($imgDir)) {
+        foreach ($_POST['eliminarImagenes'] as $nombre) {
+            // Validamos que el nombre tenga el formato idVehiculo_numero.jpg
+            if (!preg_match('/^' . $id . '_\d+\.jpg$/', $nombre)) {
+                continue;
+            }
+            $ruta = $imgDir . $nombre;
+            $rutaReal = realpath($ruta);
+            // Nos aseguramos de que el archivo este dentro del directorio de imagenes
+            if ($rutaReal && strpos($rutaReal, realpath($imgDir)) === 0 && file_exists($rutaReal)) {
+                if (!unlink($rutaReal)) {
+                    $erroresImg[] = "No se pudo eliminar $nombre";
+                }
+            }
+        }
+    }
+
+    // Reenumeramos las imagenes restantes para evitar huecos en la numeracion
+    if (is_dir($imgDir)) {
+        $archivos = scandir($imgDir);
+        $imagenesVehiculo = [];
+        foreach ($archivos as $archivo) {
+            if (preg_match('/^' . $id . '_(\d+)\.jpg$/', $archivo)) {
+                $imagenesVehiculo[] = $archivo;
+            }
+        }
+        sort($imagenesVehiculo);
+        foreach ($imagenesVehiculo as $index => $archivoViejo) {
+            $nuevoNombre = $id . '_' . ($index + 1) . '.jpg';
+            if ($archivoViejo !== $nuevoNombre) {
+                rename($imgDir . $archivoViejo, $imgDir . $nuevoNombre);
+            }
+        }
+    }
+
+    // Agregamos las nuevas imagenes subidas
+    if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"]) && is_dir($imgDir)) {
+        // Buscamos el numero mas alto actual para este vehiculo
+        $archivos = scandir($imgDir);
+        $maxNum = 0;
+        foreach ($archivos as $archivo) {
+            if (preg_match('/^' . $id . '_(\d+)\.jpg$/', $archivo, $matches)) {
+                $maxNum = max($maxNum, (int)$matches[1]);
+            }
+        }
+
+        $cantidad = count($_FILES["files"]["name"]);
+        for ($i = 0; $i < $cantidad; $i++) {
+            if ($_FILES["files"]["error"][$i] === UPLOAD_ERR_OK) {
+                $tmpName = $_FILES["files"]["tmp_name"][$i];
+                $numero = $maxNum + $i + 1;
+                $to = $imgDir . $id . "_" . $numero . ".jpg";
+                if (!move_uploaded_file($tmpName, $to)) {
+                    $erroresImg[] = "No se pudo guardar la imagen " . ($i + 1);
+                }
+            } elseif ($_FILES["files"]["error"][$i] !== UPLOAD_ERR_NO_FILE) {
+                $erroresImg[] = "Error al subir imagen " . ($i + 1) . ": codigo " . $_FILES["files"]["error"][$i];
+            }
+        }
+    }
+
     echo json_encode([
         "status" => "success",
-        "message" => "Vehículo modificado con éxito."
+        "message" => "Vehículo modificado con éxito.",
+        "errores_imagenes" => $erroresImg
     ]);
 
     $con->commit(); 
