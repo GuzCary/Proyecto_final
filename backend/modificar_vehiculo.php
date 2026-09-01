@@ -118,6 +118,11 @@ try {
     // --- Manejo de imagenes ---
     $imgDir = __DIR__ . '/../img/';
 
+    // Log temporal para diagnosticar
+    $logDir = __DIR__ . '/../logs/';
+    if (!is_dir($logDir)) mkdir($logDir, 0755, true);
+    $log = date('H:i:s') . " - id=$id - files=" . (isset($_FILES['files']) ? count($_FILES['files']['name']) : 'NO') . "\n";
+
     // Creamos el directorio si no existe
     if (!is_dir($imgDir)) {
         mkdir($imgDir, 0755, true);
@@ -125,12 +130,15 @@ try {
 
     // Eliminamos las imagenes marcadas
     if (!empty($_POST['eliminarImagenes']) && is_array($_POST['eliminarImagenes'])) {
+        $log .= "eliminar=" . implode(',', $_POST['eliminarImagenes']) . "\n";
         foreach ($_POST['eliminarImagenes'] as $nombre) {
             $ruta = $imgDir . basename($nombre);
             if (file_exists($ruta)) {
                 unlink($ruta);
             }
         }
+    } else {
+        $log .= "eliminar=NINGUNA\n";
     }
 
     // Reenumeramos las imagenes restantes para evitar huecos
@@ -163,14 +171,22 @@ try {
 
         $cantidad = count($_FILES["files"]["name"]);
         for ($i = 0; $i < $cantidad; $i++) {
-            if ($_FILES["files"]["error"][$i] === UPLOAD_ERR_OK) {
+            $err = $_FILES["files"]["error"][$i];
+            $log .= "img[$i] error=$err";
+            if ($err === UPLOAD_ERR_OK) {
                 $tmpName = $_FILES["files"]["tmp_name"][$i];
                 $numero = $maxNum + $i + 1;
                 $to = $imgDir . $id . "_" . $numero . ".jpg";
-                move_uploaded_file($tmpName, $to);
+                $ok = move_uploaded_file($tmpName, $to);
+                $log .= " destino=$to ok=" . ($ok ? 'SI' : 'NO');
             }
+            $log .= "\n";
         }
+    } else {
+        $log .= "NO HAY FILES\n";
     }
+
+    file_put_contents($logDir . 'debug_img.log', $log . "---\n", FILE_APPEND);
 
     echo json_encode(["status" => "success", "message" => "Vehiculo modificado con exito."]);
 
