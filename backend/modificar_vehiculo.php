@@ -10,7 +10,7 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once __DIR__ . '/../config/conexion.php';
 
 // incluimos el archivo de encriptacion
-require_once __DIR__ . '/encriptar.php'; 
+require_once __DIR__ . '/encriptar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -24,26 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Log temporal para diagnosticar problema de imagenes al editar
-$logDir = __DIR__ . '/../logs/';
-if (!is_dir($logDir)) {
-    mkdir($logDir, 0755, true);
-}
-$logFile = $logDir . 'debug_modificar_vehiculo.log';
-file_put_contents($logFile, date('Y-m-d H:i:s') . " - POST: " . print_r($_POST, true) . "\nFILES: " . print_r($_FILES, true) . "\n---\n", FILE_APPEND);
-
 // recibimos y desencriptamos el id del vehiclo
 $idEncriptado = $_POST['id'] ?? '';
 $id = desencriptar($idEncriptado);
 
-// Si no se pudo desencriptar o vino vacío, cortamos
+// Si no se pudo desencriptar o vino vacio, cortamos
 if (!$id) {
-    echo json_encode(["status" => "error", "message" => "El identificador del vehículo no es válido."]);
+    echo json_encode(["status" => "error", "message" => "El identificador del vehiculo no es valido."]);
     exit;
 }
-
-
-
 
 // Recibimos los datos del formulario
 $idSucursal = $_POST['idSucursal'] ?? 1;
@@ -63,16 +52,6 @@ $km = $_POST['km'] ?? 0;
 $precioMinimo = $_POST['precioMinimo'] ?? 0;
 $precio = $_POST['precio'] ?? 0;
 $categorias = $_POST['categorias'] ?? [];
-
-
-
-
-
-
-
-
-
-
 
 try {
     // Actualizamos usando el id desencriptado
@@ -120,7 +99,7 @@ try {
         ':id' => $id
     ]);
 
-    // Si se mandaron categorías, actualizamos la tabla 'Tiene'
+    // Si se mandaron categorias, actualizamos la tabla 'Tiene'
     if (!empty($categorias) && is_array($categorias)) {
         // Borramos las relaciones viejas
         $stmtDel = $con->prepare("DELETE FROM Tiene WHERE idVehiculo = :idVehiculo");
@@ -138,43 +117,23 @@ try {
 
     // --- Manejo de imagenes ---
     $imgDir = __DIR__ . '/../img/';
-    $erroresImg = [];
-    $debugImg = [
-        'recibio_files' => isset($_FILES["files"]),
-        'cantidad_name' => isset($_FILES["files"]["name"]) ? count($_FILES["files"]["name"]) : 0,
-        'files' => $_FILES["files"] ?? null,
-        'eliminarImagenes' => $_POST['eliminarImagenes'] ?? [],
-        'id_desencriptado' => $id,
-        'imgDir' => realpath($imgDir) ?: $imgDir,
-        'imgDir_escribible' => is_dir($imgDir) && is_writable($imgDir)
-    ];
 
     // Creamos el directorio si no existe
     if (!is_dir($imgDir)) {
-        if (!mkdir($imgDir, 0755, true)) {
-            $erroresImg[] = "No se pudo crear el directorio de imagenes.";
-        }
+        mkdir($imgDir, 0755, true);
     }
 
-    // Eliminamos las imagenes marcadas para borrar
-    if (!empty($_POST['eliminarImagenes']) && is_array($_POST['eliminarImagenes']) && is_dir($imgDir)) {
+    // Eliminamos las imagenes marcadas
+    if (!empty($_POST['eliminarImagenes']) && is_array($_POST['eliminarImagenes'])) {
         foreach ($_POST['eliminarImagenes'] as $nombre) {
-            // Validamos que el nombre tenga el formato idVehiculo_numero.jpg
-            if (!preg_match('/^' . $id . '_\d+\.jpg$/', $nombre)) {
-                continue;
-            }
-            $ruta = $imgDir . $nombre;
-            $rutaReal = realpath($ruta);
-            // Nos aseguramos de que el archivo este dentro del directorio de imagenes
-            if ($rutaReal && strpos($rutaReal, realpath($imgDir)) === 0 && file_exists($rutaReal)) {
-                if (!unlink($rutaReal)) {
-                    $erroresImg[] = "No se pudo eliminar $nombre";
-                }
+            $ruta = $imgDir . basename($nombre);
+            if (file_exists($ruta)) {
+                unlink($ruta);
             }
         }
     }
 
-    // Reenumeramos las imagenes restantes para evitar huecos en la numeracion
+    // Reenumeramos las imagenes restantes para evitar huecos
     if (is_dir($imgDir)) {
         $archivos = scandir($imgDir);
         $imagenesVehiculo = [];
@@ -194,7 +153,6 @@ try {
 
     // Agregamos las nuevas imagenes subidas
     if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"]) && is_dir($imgDir)) {
-        // Buscamos el numero mas alto actual para este vehiculo
         $archivos = scandir($imgDir);
         $maxNum = 0;
         foreach ($archivos as $archivo) {
@@ -209,34 +167,16 @@ try {
                 $tmpName = $_FILES["files"]["tmp_name"][$i];
                 $numero = $maxNum + $i + 1;
                 $to = $imgDir . $id . "_" . $numero . ".jpg";
-                $movido = move_uploaded_file($tmpName, $to);
-                $debugImg['movidos'][] = [
-                    'numero' => $numero,
-                    'destino' => $to,
-                    'exito' => $movido
-                ];
-                if (!$movido) {
-                    $erroresImg[] = "No se pudo guardar la imagen " . ($i + 1);
-                }
-            } elseif ($_FILES["files"]["error"][$i] !== UPLOAD_ERR_NO_FILE) {
-                $erroresImg[] = "Error al subir imagen " . ($i + 1) . ": codigo " . $_FILES["files"]["error"][$i];
+                move_uploaded_file($tmpName, $to);
             }
         }
     }
 
-    echo json_encode([
-        "status" => "success",
-        "message" => "Vehículo modificado con éxito.",
-        "errores_imagenes" => $erroresImg,
-        "debug" => $debugImg
-    ]);
+    echo json_encode(["status" => "success", "message" => "Vehiculo modificado con exito."]);
 
-    $con->commit(); 
-
-  
+    $con->commit();
 
 } catch (PDOException $e) {
-    $con->rollBack(); // Si hay fallos volvemos a los datos anteriores
-    
+    $con->rollBack();
     echo json_encode(["status" => "error", "message" => "Error: " . $e->getMessage()]);
 }
