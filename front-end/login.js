@@ -14,8 +14,6 @@ loginForm.addEventListener("submit", (e) => {
         .then(resultado => {
 
             if (resultado.status === "success") {
-
-                // Segun el rol del usuario, lo redirigimos a su panel correspondiente
                 if (resultado.rol === "admin") {
                     window.location.href = "admin.html";
                 } else if (resultado.rol === "user") {
@@ -23,9 +21,6 @@ loginForm.addEventListener("submit", (e) => {
                 } else if (resultado.rol === "limp") {
                     window.location.href = "limpieza.html";
                 }
-
-            } else {
-                alert("Usuario o contraseña incorrectos");
             }
 
         });

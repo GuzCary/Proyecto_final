@@ -57,7 +57,7 @@ try {
         if (is_dir($imgDir)) {
             $archivos = scandir($imgDir);
             foreach ($archivos as $archivo) {
-                if (preg_match('/^' . $vehiculo['id'] . '_(\d+)\.jpg$/', $archivo)) {
+                if (preg_match('/^' . $vehiculo['id'] . '_(\d+)\.[a-zA-Z]+$/', $archivo)) {
                     $vehiculo['imagenes'][] = $archivo;
                 }
             }

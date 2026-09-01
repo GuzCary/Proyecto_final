@@ -15,8 +15,6 @@ function cargarCategorias() {
         .then(resultado => {
             if (resultado.status === "success") {
                 mostrarCategorias(resultado.categorias);
-            } else {
-                alert("Error al cargar categorias: " + resultado.message);
             }
         });
 }
@@ -56,11 +54,8 @@ formCategoria.addEventListener("submit", (e) => {
         .then(res => res.json())
         .then(resultado => {
             if (resultado.status === "success") {
-                // si la categoria se guardó bien, limpiamos el formulario y refrescamos la tabla
                 cancelarEdicion();
                 cargarCategorias();
-            } else {
-                alert(resultado.message);
             }
         });
 });
@@ -102,8 +97,6 @@ function eliminarCategoria(idEncriptado) {
         .then(resultado => {
             if (resultado.status === "success") {
                 cargarCategorias();
-            } else {
-                alert(resultado.message);
             }
         });
 }

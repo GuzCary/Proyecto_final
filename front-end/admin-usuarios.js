@@ -15,8 +15,6 @@ function cargarUsuarios() {
         .then(resultado => {
             if (resultado.status === "success") {
                 mostrarUsuarios(resultado.usuarios);
-            } else {
-                alert("Error al cargar usuarios: " + resultado.message); 
             }
         });
 }
@@ -51,11 +49,8 @@ formUsuario.addEventListener("submit", (e) => {
         .then(res => res.json())
         .then(resultado => {
             if (resultado.status === "success") {
-                // si el usuario se agrego bien, limpiamos el formulario y refrescamos la tabla
                 formUsuario.reset();
                 cargarUsuarios();
-            } else {
-                alert(resultado.message);
             }
         });
 });
@@ -77,8 +72,6 @@ function eliminarUsuario(id) {
         .then(resultado => {
             if (resultado.status === "success") {
                 cargarUsuarios();
-            } else {
-                alert(resultado.message);
             }
         });
 }

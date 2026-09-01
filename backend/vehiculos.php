@@ -93,16 +93,37 @@ try {
         }
     }
 
-    // Si se subieron imagenes, las guardamos con formato idVehiculo_numero.jpg
+    // Si se subieron imagenes, las guardamos con formato idVehiculo_numero.ext
     if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"])) {
+        $imgDir = __DIR__ . "/../img/";
+        if (!is_dir($imgDir)) {
+            mkdir($imgDir, 0755, true);
+        }
+
+        $extensionesPermitidas = [
+            "image/jpeg" => "jpg",
+            "image/png" => "png",
+            "image/webp" => "webp",
+            "image/gif" => "gif"
+        ];
+
         $cantidad = count($_FILES["files"]["name"]);
         for ($i = 0; $i < $cantidad; $i++) {
-            if ($_FILES["files"]["error"][$i] === UPLOAD_ERR_OK) {
-                $tmpName = $_FILES["files"]["tmp_name"][$i];
-                $numero = $i + 1;
-                $to = __DIR__ . "/../img/" . $idVehiculo . "_" . $numero . ".jpg";
-                move_uploaded_file($tmpName, $to);
+            if ($_FILES["files"]["error"][$i] !== UPLOAD_ERR_OK) {
+                continue;
             }
+
+            $tmpName = $_FILES["files"]["tmp_name"][$i];
+            $info = getimagesize($tmpName);
+
+            if ($info === false || !isset($extensionesPermitidas[$info["mime"]])) {
+                continue;
+            }
+
+            $extension = $extensionesPermitidas[$info["mime"]];
+            $numero = $i + 1;
+            $to = $imgDir . $idVehiculo . "_" . $numero . "." . $extension;
+            move_uploaded_file($tmpName, $to);
         }
     }
 

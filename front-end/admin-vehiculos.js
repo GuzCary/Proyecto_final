@@ -28,11 +28,8 @@ function cargarVehiculos() {
             if (resultado.status === "success") {
                 vehiculosGlobal = resultado.vehiculos;
                 mostrarVehiculos(resultado.vehiculos);
-            } else {
-                alert("Error al cargar vehiculos: " + resultado.message);
             }
-        })
-        .catch(err => console.error("Error al cargar vehiculos:", err));
+        });
 }
 
 // Recibe un array de vehiculos y arma las filas de la tabla con esos datos
@@ -69,16 +66,12 @@ function cargarCategorias() {
             if (resultado.status === "success") {
                 todasLasCategorias = resultado.categorias || [];
 
-                // Cargamos las opciones del select de agregar vehiculo
                 const select = document.getElementById("vCategorias");
                 select.innerHTML = todasLasCategorias.map((categoria) => `
                     <option value="${categoria.id}">${escaparHTML(categoria.nombre)}</option>
                 `).join("");
-            } else {
-                console.error("Error al cargar categorias:", resultado.message);
             }
-        })
-        .catch(err => console.error("Error al cargar categorias:", err));
+        });
 }
 
 const formVehiculo = document.getElementById("formVehiculo");
@@ -99,11 +92,8 @@ formVehiculo.addEventListener("submit", (e) => {
                 formVehiculo.reset();
                 cerrarModalAgregar();
                 cargarVehiculos();
-            } else {
-                alert(resultado.message);
             }
-        })
-        .catch(err => console.error("Error al agregar vehiculo:", err));
+        });
 });
 
 // Abre el modal de agregar vehiculo
@@ -122,7 +112,6 @@ function abrirModal(idEncriptado) {
     vehiculoSeleccionado = vehiculosGlobal.find(v => v.id === idEncriptado);
 
     if (!vehiculoSeleccionado) {
-        alert("No se encontro el vehiculo seleccionado.");
         return;
     }
 
@@ -199,7 +188,6 @@ formModificar.addEventListener("submit", (e) => {
     e.preventDefault();
 
     if (!vehiculoSeleccionado) {
-        alert("No hay un vehiculo seleccionado.");
         return;
     }
 
@@ -211,15 +199,10 @@ formModificar.addEventListener("submit", (e) => {
     })
         .then(res => res.json())
         .then(resultado => {
-            alert(resultado.message);
             if (resultado.status === "success") {
                 cerrarModal();
                 cargarVehiculos();
             }
-        })
-        .catch(err => {
-            console.error("Error al modificar vehiculo:", err);
-            alert("Error al comunicarse con el servidor.");
         });
 });
 
@@ -240,9 +223,6 @@ function eliminarVehiculo(idEncriptado) {
         .then(resultado => {
             if (resultado.status === "success") {
                 cargarVehiculos();
-            } else {
-                alert(resultado.message);
             }
-        })
-        .catch(err => console.error("Error al eliminar vehiculo:", err));
+        });
 }

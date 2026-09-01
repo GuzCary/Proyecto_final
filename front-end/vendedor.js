@@ -26,11 +26,9 @@ function cargarCategorias() {
             if (data.status === "success") {
                 todasLasCategorias = data.categorias || [];
             } else {
-                console.error("Error al cargar categorías:", data.message);
                 todasLasCategorias = [];
             }
-        })
-        .catch(err => console.error("Error al cargar categorías:", err));
+        });
 }
 
 // 2. Cargar y listar los vehículos
@@ -58,21 +56,19 @@ function cargarVehiculos() {
                 contenedor.innerHTML += `
                     <div onclick="seleccionarAuto('${idEncriptado}')" 
                          style="border: 1px solid #aaa; padding: 10px; margin: 8px 0; cursor: pointer;">
-                        <strong>🚗 ${titulo}</strong>
+                        <strong>${titulo}</strong>
                         <p style="margin: 4px 0;">Patente: ${patente} | Precio: $${precio} | Sucursal: ${sucursal}</p>
-                        <small style="color: blue;">👉 Haz clic para seleccionar este vehículo</small>
+                        <small style="color: blue;">Haz clic para seleccionar este vehiculo</small>
                     </div>
                 `;
             });
-        })
-        .catch(err => console.error("Error al cargar vehículos:", err));
+        });
 }
 
 // 3. Cuando el usuario hace clic en un auto de la lista
 function seleccionarAuto(idEncriptado) {
     autoSeleccionado = vehiculosGlobal.find(v => v.id === idEncriptado);
     if (!autoSeleccionado) {
-        alert("No se encontró el vehículo seleccionado.");
         return;
     }
 
@@ -85,7 +81,6 @@ function seleccionarAuto(idEncriptado) {
 // 4. Precargar todos los datos viejos en el formulario y marcar los checkboxes
 function mostrarFormulario() {
     if (!autoSeleccionado) {
-        alert("Primero seleccioná un vehículo.");
         return;
     }
 
@@ -145,7 +140,6 @@ document.getElementById("formModificar").addEventListener("submit", function(e) 
     e.preventDefault();
 
     if (!autoSeleccionado) {
-        alert("No hay un vehículo seleccionado.");
         return;
     }
 
@@ -157,14 +151,9 @@ document.getElementById("formModificar").addEventListener("submit", function(e) 
     })
     .then(res => res.json())
     .then(data => {
-        alert(data.message);
         if (data.status === "success") {
             cancelarEdicion();
-            cargarVehiculos(); // Refrescamos la lista con los nuevos cambios
+            cargarVehiculos();
         }
-    })
-    .catch(err => {
-        console.error("Error al modificar:", err);
-        alert("Error al comunicarse con el servidor.");
     });
 });
