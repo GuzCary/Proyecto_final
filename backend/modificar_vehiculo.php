@@ -35,7 +35,7 @@ if (!$id) {
 }
 
 // Recibimos los datos del formulario
-$idSucursal = $_POST['idSucursal'] ?? 1;
+$idSucursal = $_POST['idSucursal'] ?? null;
 $marca = $_POST['marca'] ?? '';
 $descripcion = $_POST['descripcion'] ?? '';
 $modelo = $_POST['modelo'] ?? '';

@@ -2,13 +2,6 @@ let vehiculosGlobal = [];
 let todasLasCategorias = [];
 let autoSeleccionado = null;
 
-// Helper para escapar texto antes de inyectarlo en HTML
-function escaparHTML(texto) {
-    const div = document.createElement("div");
-    div.textContent = texto;
-    return div.innerHTML;
-}
-
 // Verificamos sesión e iniciamos las cargas
 verificarSesion("user", (datos) => {
     document.getElementById("nombreUsuario").textContent = datos.usuario_nombre;
@@ -23,12 +16,9 @@ function cargarCategorias() {
     fetch('../backend/categorias.php')
         .then(res => res.json())
         .then(data => {
-            if (data.status === "success") {
-                todasLasCategorias = data.categorias || [];
-            } else {
-                todasLasCategorias = [];
-            }
-        });
+            todasLasCategorias = data.categorias || data;
+        })
+        .catch(err => console.error("Error al cargar categorías:", err));
 }
 
 // 2. Cargar y listar los vehículos
@@ -47,30 +37,23 @@ function cargarVehiculos() {
             vehiculosGlobal = data.vehiculos;
 
             data.vehiculos.forEach(v => {
-                const idEncriptado = escaparHTML(v.id);
-                const titulo = escaparHTML(`${v.marca} ${v.modelo} (${v.anio})`);
-                const patente = escaparHTML(v.patente || "");
-                const precio = escaparHTML(String(v.precio));
-                const sucursal = escaparHTML(v.sucursal || "");
-
                 contenedor.innerHTML += `
-                    <div onclick="seleccionarAuto('${idEncriptado}')" 
+                    <div onclick="seleccionarAuto('${v.id}')" 
                          style="border: 1px solid #aaa; padding: 10px; margin: 8px 0; cursor: pointer;">
-                        <strong>${titulo}</strong>
-                        <p style="margin: 4px 0;">Patente: ${patente} | Precio: $${precio} | Sucursal: ${sucursal}</p>
-                        <small style="color: blue;">Haz clic para seleccionar este vehiculo</small>
+                        <strong>🚗 ${v.marca} ${v.modelo} (${v.anio})</strong>
+                        <p style="margin: 4px 0;">Patente: ${v.patente} | Precio: $${v.precio} | Sucursal: ${v.sucursal}</p>
+                        <small style="color: blue;">👉 Haz clic para seleccionar este vehículo</small>
                     </div>
                 `;
             });
-        });
+        })
+        .catch(err => console.error("Error al cargar vehículos:", err));
 }
 
 // 3. Cuando el usuario hace clic en un auto de la lista
 function seleccionarAuto(idEncriptado) {
     autoSeleccionado = vehiculosGlobal.find(v => v.id === idEncriptado);
-    if (!autoSeleccionado) {
-        return;
-    }
+    if (!autoSeleccionado) return;
 
     // Mostramos el nombre y el botón para modificar
     document.getElementById("nombreAutoSeleccionado").textContent = `${autoSeleccionado.marca} ${autoSeleccionado.modelo} (${autoSeleccionado.patente})`;
@@ -80,9 +63,7 @@ function seleccionarAuto(idEncriptado) {
 
 // 4. Precargar todos los datos viejos en el formulario y marcar los checkboxes
 function mostrarFormulario() {
-    if (!autoSeleccionado) {
-        return;
-    }
+    if (!autoSeleccionado) return;
 
     // Precargamos todos los campos de texto y números
     document.getElementById("edit_id").value = autoSeleccionado.id;
@@ -109,20 +90,16 @@ function mostrarFormulario() {
 
     const categoriasActualesIds = (autoSeleccionado.categorias || []).map(cat => Number(cat.id));
 
-    if (todasLasCategorias.length === 0) {
-        contenedorCat.innerHTML = "<p>No hay categorías disponibles.</p>";
-    } else {
-        todasLasCategorias.forEach(cat => {
-            const estaMarcada = categoriasActualesIds.includes(Number(cat.id)) ? 'checked' : '';
+    todasLasCategorias.forEach(cat => {
+        const estaMarcada = categoriasActualesIds.includes(Number(cat.id)) ? 'checked' : '';
 
-            contenedorCat.innerHTML += `
-                <label style="margin-right: 15px; display: inline-block; cursor: pointer;">
-                    <input type="checkbox" name="categorias[]" value="${cat.id}" ${estaMarcada}>
-                    ${escaparHTML(cat.nombre)}
-                </label>
-            `;
-        });
-    }
+        contenedorCat.innerHTML += `
+            <label style="margin-right: 15px; display: inline-block; cursor: pointer;">
+                <input type="checkbox" name="categorias[]" value="${cat.id}" ${estaMarcada}>
+                ${cat.nombre}
+            </label>
+        `;
+    });
 
     document.getElementById("seccionEditar").style.display = "block";
 }
@@ -131,17 +108,11 @@ function mostrarFormulario() {
 function cancelarEdicion() {
     document.getElementById("seccionEditar").style.display = "none";
     document.getElementById("formModificar").reset();
-    autoSeleccionado = null;
-    document.getElementById("panelSeleccion").style.display = "none";
 }
 
 // 5. Enviar la modificación por POST a PHP
 document.getElementById("formModificar").addEventListener("submit", function(e) {
     e.preventDefault();
-
-    if (!autoSeleccionado) {
-        return;
-    }
 
     const formData = new FormData(this);
 
@@ -151,9 +122,12 @@ document.getElementById("formModificar").addEventListener("submit", function(e) 
     })
     .then(res => res.json())
     .then(data => {
+        alert(data.message);
         if (data.status === "success") {
             cancelarEdicion();
-            cargarVehiculos();
+            document.getElementById("panelSeleccion").style.display = "none";
+            cargarVehiculos(); // Refrescamos la lista con los nuevos cambios
         }
-    });
+    })
+    .catch(err => console.error("Error al modificar:", err));
 });
