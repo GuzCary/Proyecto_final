@@ -1,6 +1,6 @@
 
     
-filtrar y validar todos los datos que entran al servidor 
+<!--filtrar y validar todos los datos que entran al servidor -->
 
 
 
@@ -9,11 +9,10 @@ filtrar y validar todos los datos que entran al servidor
 
 
     
-    registrar ventas
-    buscar vehiculos con filtros
+registrar ventas
+buscar vehiculos con filtros
     
-    
-filtrar y validar todos los datos que entran al servidor 
+
 
 
 
@@ -40,8 +39,6 @@ registrarlo como vendido
 darle de baja
 
 
-
-REVISAR LISTADO DE IMAGENES 
 
 
 

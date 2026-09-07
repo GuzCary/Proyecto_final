@@ -1,7 +1,5 @@
-// Verifica si hay una sesion activa y si el usuario tiene el rol esperado
-// Si no cumple, redirige al login. Si cumple, ejecuta la funcion "siInicioSesion" pasandole los datos del usuario
-function verificarSesion(rolEsperado, siInicioSesion) {
-    fetch("../backend/auth.php")
+﻿function verificarSesion(rolEsperado, siInicioSesion) {
+    fetch("../backend/seguridad/auth.php")
         .then(res => res.json())
         .then(datos => {
             if (!datos.logueado || datos.usuario_rol !== rolEsperado) {
@@ -9,25 +7,17 @@ function verificarSesion(rolEsperado, siInicioSesion) {
             } else {
                 siInicioSesion(datos);
             }
-        });
+        })
+        .catch(() => { window.location.href = "login.html"; });
 }
-
-// Si existe en la pagina, se agrega el evento de logout al boton
 function activarLogout() {
     const btnLogout = document.getElementById("btnLogout");
-
-    // Si la pagina no tiene boton de logout, no se hace nada
-    if (!btnLogout) {
-        return;
-    }
-
+    if (!btnLogout) return;
     btnLogout.addEventListener("click", () => {
-        fetch("../backend/logout.php")
+        fetch("../backend/seguridad/logout.php")
             .then(res => res.json())
             .then(resultado => {
-                if (resultado.status === "success") {
-                    window.location.href = "login.html";
-                }
+                if (resultado.status === "success") window.location.href = "login.html";
             });
     });
 }

@@ -1,36 +1,19 @@
-// Al cargar la pagina, pedimos al backend el listado de vehiculos disponibles y los mostramos
-fetch("../backend/listar_vehiculos.php")
+﻿fetch("../backend/vehiculos/listar_vehiculos.php")
     .then(res => res.json())
     .then(resultado => {
-        if (resultado.status === "success") {
-            mostrarAutos(resultado.vehiculos);
-        }
+        if (resultado.status === "success") mostrarAutos(resultado.vehiculos);
     });
-
-// Recibe un array de vehiculos y arma las tarjetas del catalogo
 function mostrarAutos(vehiculos) {
     const lista = document.getElementById("listaAutos");
-
-    // Si no hay vehiculos, mostramos un mensaje para no dejar la seccion vacia
-    if (vehiculos.length === 0) {
-        lista.innerHTML = "<p>No hay vehiculos disponibles por el momento.</p>";
+    if (!vehiculos || vehiculos.length === 0) {
+        lista.innerHTML = "<p>No hay vehículos disponibles por el momento.</p>";
         return;
     }
-
     lista.innerHTML = vehiculos.map((vehiculo) => {
-        // Cada vehiculo trae un array de categorias, armamos un string con los nombres
-        const nombresCategorias = vehiculo.categorias.map(c => c.nombre).join(", ");
-
-        // Armamos el HTML de las imagenes
-        let imagenesHTML = "";
-        if (vehiculo.imagenes && vehiculo.imagenes.length > 0) {
-            imagenesHTML = `<div class="galeria-auto">` +
-                vehiculo.imagenes.map(img => `<img src="../img/${img}" alt="Foto de ${vehiculo.marca} ${vehiculo.modelo}" style="width:100%; max-width:200px; margin:4px;">`).join("") +
-                `</div>`;
-        } else {
-            imagenesHTML = `<p><em>Sin fotos</em></p>`;
-        }
-
+        const nombresCategorias = (vehiculo.categorias || []).map(c => c.nombre).join(", ");
+        let imagenesHTML = (vehiculo.imagenes && vehiculo.imagenes.length > 0)
+            ? `<div class="galeria-auto">` + vehiculo.imagenes.map(img => `<img src="../img/${img}" alt="Foto" style="width:100%; max-width:200px; margin:4px;">`).join("") + `</div>`
+            : `<p><em>Sin fotos</em></p>`;
         return `
             <article class="tarjeta-auto">
                 ${imagenesHTML}

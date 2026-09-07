@@ -1,25 +1,13 @@
-const formMarca = document.getElementById("formMarca");
+﻿const formMarca = document.getElementById("formMarca");
 const respuesta = document.getElementById("respuesta");
-
 formMarca.addEventListener("submit", (e) => {
     e.preventDefault();
-
     const datos = new FormData(formMarca);
-
-    fetch("../backend/marcas.php", {
-        method: "POST",
-        body: datos
-    })
-    .then(res => res.json())
-    .then(resultado => {
-        if (resultado.status === "success") {
+    fetch("../backend/marcas/registrar_marca.php", { method: "POST", body: datos })
+        .then(res => res.json())
+        .then(resultado => {
             respuesta.textContent = resultado.message;
-            formMarca.reset();
-        } else {
-            respuesta.textContent = resultado.message;
-        }
-    })
-    .catch(error => {
-        respuesta.textContent = "Error al conectar con el servidor.";
-    });
+            if (resultado.status === "success") formMarca.reset();
+        })
+        .catch(() => { respuesta.textContent = "Error al conectar con el servidor."; });
 });
