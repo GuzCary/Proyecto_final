@@ -1,15 +1,15 @@
 <?php
-// backend/usuarios/limpieza/productos.php
-// Permite agregar un producto nuevo y sumar/restar stock a uno existente
+// backend/productos/productos.php
+// Permite agregar un producto nuevo y sumar/restar stock a uno existente (admin, limpieza)
 
 // iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
 // Incluimos la conexión, encriptación y sanitización
-require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../seguridad/encriptar.php';
-require_once __DIR__ . '/../../seguridad/sanitizar.php';
+require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
 // Verificamos que sea por método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

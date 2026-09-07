@@ -1,0 +1,131 @@
+/* Reset básico estructural */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #f4f4f4;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================================
+   HEADER (Flexbox)
+   ========================================= */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #ddd;
+    border-bottom: 1px solid #ccc;
+}
+
+/* =========================================
+   CONTENEDOR PRINCIPAL
+   ========================================= */
+.main-container {
+    flex: 1;
+    padding: 20px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* =========================================
+   GRILLA DE VEHÍCULOS (CSS Grid Responsive)
+   ========================================= */
+
+/* 1. MÓVIL (< 768px): 1 columna */
+.vehiculos-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+/* 2. TABLET (768px a 1024px): 2 columnas */
+@media (min-width: 768px) {
+    .vehiculos-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 3. PC / ESCRITORIO (> 1024px): 3 columnas */
+@media (min-width: 1024px) {
+    .vehiculos-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* =========================================
+   CARD DE VEHÍCULO (Flexbox y Grid interno)
+   ========================================= */
+.vehiculo-card {
+    background: #fff;
+    border: 1px solid #bbb;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Galería de imágenes (Flexbox con scroll horizontal si hay muchas) */
+.vehiculo-imagenes {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+}
+
+.vehiculo-imagenes img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
+/* Título y estado (Flexbox) */
+.vehiculo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Categorías (Flexbox con wrap) */
+.vehiculo-categorias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.categoria-tag {
+    background-color: #e0e0e0;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+/* Datos técnicos en 2 columnas (Grid interno) */
+.vehiculo-detalles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    font-size: 13px;
+    background: #fafafa;
+    padding: 10px;
+    border: 1px solid #eee;
+}
+
+/* Precios y pie de la tarjeta (Flexbox) */
+.vehiculo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+    margin-top: auto;
+}

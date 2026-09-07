@@ -1,5 +1,5 @@
 <?php
-// backend/modificar_vehiculo.php
+// backend/vehiculos/modificar_vehiculo.php
 // Este archivo permite modificar un vehiculo ya existente (admin)
 
 

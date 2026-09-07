@@ -1,5 +1,5 @@
 <?php
-// config/env_load.php
+// backend/config/env_load.php
 // Carga las variables del archivo .env y las devuelve como arreglo.
 //
 // Formato esperado del .env (sin comentarios):

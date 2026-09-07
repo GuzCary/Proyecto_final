@@ -1,5 +1,5 @@
 <?php
-
+// backend/config/conexion.php
 $env = require __DIR__ . '/env_load.php';
 
 //tomamos los datos devueltos por env_load y creamos la conexion a la db

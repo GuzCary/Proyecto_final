@@ -1,5 +1,5 @@
 <?php
-// util/actualizar_contraseñas.php
+// backend/util/actualizar_contraseñas.php
 // Este script actualiza las contraseñas de los usuarios de prueba con hashes
 // generados por password_hash() de PHP
 // es para uso de desarrollo 

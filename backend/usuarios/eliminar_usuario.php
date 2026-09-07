@@ -1,5 +1,5 @@
 <?php
-// backend/eliminar_usuario.php
+// backend/usuarios/eliminar_usuario.php
 // Este archivo permite eliminar un usuario del sistema (admin)¿
 
 // iniciamos la sesion y establecemos el protocolo en JSON

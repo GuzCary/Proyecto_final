@@ -1,5 +1,5 @@
 <?php
-// backend/eliminar_vehiculo.php
+// backend/vehiculos/eliminar_vehiculo.php
 // Este archivo permite eliminar un vehiculo del inventario.
 // Solo puede ser usado por un usuario administrador.
 

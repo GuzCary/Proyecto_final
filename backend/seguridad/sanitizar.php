@@ -1,5 +1,5 @@
 <?php
-// backend/sanitizar.php
+// backend/seguridad/sanitizar.php
 // Funciones de sanitizacion y validacion de datos de entrada
 
 // esta funcion limpia cadenas de caracteres para evitar inyecciones JS

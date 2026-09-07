@@ -1,5 +1,5 @@
 <?php
-// backend/logout.php
+// backend/seguridad/logout.php
 // Este archivo cierra la sesion del usuario
 
 // iniciamos la sesion
