@@ -1,39 +1,17 @@
 <?php
-// backend/categorias.php
-// Este archivo permite gestionar las categorias de vehiculos
-// - GET: devuelve todas las categorias (publico)
-// - POST: crea una nueva categoria (administradores)
+// backend/categorias/registrar_categoria.php
+// Este archivo permite registrar categorias de vehiculos (admin)
 
+
+// iniciamos la sesion y establecemos la respuesta como JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
 // incluimos la conexion a la db y las funciones de encriptacion
 require_once __DIR__ . '/../config/conexion.php';
-require_once __DIR__ . '/encriptar.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
-// Si la peticion es GET, devolvemos todas las categorias
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    try {
-        // devolvemos en orden alfabetico
-        $stmt = $con->prepare("SELECT id, nombre FROM Categoria ORDER BY nombre ASC");
-        $stmt->execute();
-        $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // encriptamos los ids antes de enviarlos al frontend
-        foreach ($categorias as &$categoria) {
-            $categoria['id_encriptado'] = encriptar($categoria['id']);
-        }
-        unset($categoria);
-
-        echo json_encode([
-            "status" => "success",
-            "categorias" => $categorias
-        ]);
-    } catch (PDOException $e) {
-        echo json_encode(["status" => "error", "message" => "Error al obtener categorias: " . $e->getMessage()]);
-    }
-    exit;
-}
 
 // Si la peticion es POST, verificamos que sea administrador
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -42,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $nombre = trim($_POST['nombre'] ?? '');
+    $nombre = sanitizar($_POST['nombre']);
     $idEncriptado = $_POST['id_encriptado'] ?? '';
 
     // nos fijamos que tenga nombre

@@ -1,4 +1,9 @@
 <?php
+// util/actualizar_contraseñas.php
+// Este script actualiza las contraseñas de los usuarios de prueba con hashes
+// generados por password_hash() de PHP
+// es para uso de desarrollo 
+// No tiene interfaz grafica ni botones, se accede directamente por URL
 
 
 require_once __DIR__ . '/../config/conexion.php';

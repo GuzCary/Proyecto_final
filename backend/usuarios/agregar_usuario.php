@@ -1,13 +1,14 @@
 <?php
-// backend/usuarios.php
-// Este archivo permite gestionar los usuarios del sistema (listar y agregar)
-// Solo puede ser usado por un usuario autenticado con rol de administrador
+// backend/usuarios/agregar_usuario.php
+// Este archivo permite agregar los usuarios al sistema (admin)
 
+// iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// Incluimos la conexion a la db
+// Incluimos la conexion a la db y las funciones de sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -15,29 +16,13 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
     exit;
 }
 
-// Si la peticion es GET, devolvemos todos los usuarios (sin contraseñas)
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    try {
-        // Version preliminar: solo mostramos id, usuario, rol y fechaDeContrato
-        $stmt = $con->prepare("SELECT id, usuario, rol, fechaDeContrato FROM Usuarios ORDER BY usuario ASC");
-        $stmt->execute();
-        $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode([
-            "status" => "success",
-            "usuarios" => $usuarios
-        ]);
-    } catch (PDOException $e) {
-        echo json_encode(["status" => "error", "message" => "Error al obtener usuarios: " . $e->getMessage()]);
-    }
-    exit;
-}
 
 // Si la peticion es POST, agregamos un nuevo usuario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuarioInput = trim($_POST['usuario'] ?? '');
-    $contraseniaInput = $_POST['contrasenia'] ?? '';
-    $rolInput = trim($_POST['rol'] ?? '');
+    $usuarioInput = sanitizar($_POST['usuario']);
+    $contraseniaInput = sanitizar($_POST['contrasenia']);
+    $rolInput = sanitizar($_POST['rol']);
 
     // Validamos campos obligatorios
     if (empty($usuarioInput) || empty($contraseniaInput) || empty($rolInput)) {

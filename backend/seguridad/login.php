@@ -1,20 +1,21 @@
 <?php
-// backend/login.php
+// backend/seguridad/login.php
 // Este archivo recibe las credenciales del usuario, las valida en la base de datos
-// y, si son correctas, inicia una sesion de PHP 
+// y, si son correctas, inicia una sesion de PHP
 
-
+// iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 
-
+// establecemos el protocolo en JSON
 header("Content-Type: application/json; charset=UTF-8");
 
-// incluimos la conexion a la base de datos
+// incluimos la conexion a la base de datos y las funciones de sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/sanitizar.php';
 
 // Recibimos los datos enviados por POST
-$usuarioInput = $_POST['usuario'] ?? '';
-$contraseniaInput = $_POST['contrasenia'] ?? '';
+$usuarioInput = sanitizar($_POST['usuario']);
+$contraseniaInput = sanitizar($_POST['contrasenia']);
 
 // Validamos que no esten vacios
 if (empty($usuarioInput) || empty($contraseniaInput)) {
@@ -24,7 +25,7 @@ if (empty($usuarioInput) || empty($contraseniaInput)) {
 
 try {
     // Buscamos al usuario por su nombre de usuario
-    //traemos el hash almacenado
+    // traemos el hash almacenado
     $stmt = $con->prepare("SELECT id, usuario, contraseña, rol FROM Usuarios WHERE usuario = :user");
     $stmt->execute([':user' => $usuarioInput]);
     $usuario = $stmt->fetch();
@@ -58,7 +59,7 @@ try {
 
         // si todo sale bien iniciamos la sesion
         if ($verificado) {
-            
+
             $_SESSION['usuario_id'] = $userId;
             $_SESSION['usuario_nombre'] = $usuario['usuario'];
             $_SESSION['usuario_rol'] = $rol;
@@ -77,7 +78,7 @@ try {
         }
 
     } else {
-        
+        // si las credenciales no existen devolvemos error
         echo json_encode(["status" => "error", "message" => "Usuario o contraseña incorrectos."]);
     }
 

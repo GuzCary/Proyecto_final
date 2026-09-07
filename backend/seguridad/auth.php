@@ -1,5 +1,5 @@
 <?php
-// backend/auth.php
+// backend/seguridad/auth.php
 // Este archivo devuelve el estado de la sesion actual
 
 

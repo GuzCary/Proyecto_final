@@ -1,14 +1,16 @@
 <?php
-// backend/eliminar_categoria.php
-// Este archivo permite eliminar una categoria
-// Solo puede ser usado por un usuario administrador
+// backend/categorias/eliminar_categoria.php
+// Este archivo permite eliminar una categoria (admin)
 
+
+// iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
 // incluimos la conexion a la db y las funciones de encriptacion
 require_once __DIR__ . '/../config/conexion.php';
-require_once __DIR__ . '/encriptar.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -23,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recibimos el ID encriptado de la categoria a eliminar
-$idEncriptado = $_POST['id_encriptado'] ?? '';
+$idEncriptado = sanitizar($_POST['id_encriptado']);
 
 // nos fijamos que el id exista
 if (empty($idEncriptado)) {

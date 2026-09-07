@@ -1,36 +1,25 @@
 <?php
-// backend/registrar_marca.php
+// backend/marcas/registrar_marca.php
+// este archivo registra las marcas de los usuarios (publico)
 
+// establecemos el potocolo en JSON
 header("Content-Type: application/json; charset=UTF-8");
 
-// Incluimos la conexión
+// Incluimos la conexión a la DB y los archivos de sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
-$metodo = $_SERVER['REQUEST_METHOD'];
+
 
 try {
-    // PETICIÓN GET: Obtener todas las marcas ordenadas por hora
-    if ($metodo === 'GET') {
-        $sql = "SELECT rm.id, u.usuario, rm.hora, rm.direccion 
-                FROM RegistroMarca rm
-                INNER JOIN Usuarios u ON rm.idUsuario = u.id
-                ORDER BY rm.hora DESC";
-                
-        $stmt = $con->prepare($sql);
-        $stmt->execute();
-        $marcas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // si la peticion es POST registramos una nueva marca
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        echo json_encode([
-            "status" => "success",
-            "marcas" => $marcas
-        ]);
-        exit;
-    }
 
-    // PETICIÓN POST: Registrar una nueva marca
-    if ($metodo === 'POST') {
-        $usuarioInput = $_POST['usuario'] ?? '';
-        $direccionInput = $_POST['direccion'] ?? '';
+
+
+        $usuarioInput = sanitizar($_POST['usuario']);
+        $direccionInput = sanitizar($_POST['direccion']);
 
         // Validamos que no estén vacíos
         if (empty($usuarioInput) || empty($direccionInput)) {
@@ -38,7 +27,7 @@ try {
             exit;
         }
 
-        // 1. Buscamos si el usuario existe para obtener su ID
+        // Buscamos si el usuario existe para obtener su ID
         $stmt = $con->prepare("SELECT id FROM Usuarios WHERE usuario = :user");
         $stmt->execute([':user' => $usuarioInput]);
         $usuario = $stmt->fetch();
@@ -47,7 +36,7 @@ try {
             $userId = $usuario['id'];
             $horaActual = date('H:i:s');
 
-            // 2. Insertamos la marca
+            // Insertamos la marca
             $stmtInsert = $con->prepare("INSERT INTO RegistroMarca (idUsuario, hora, direccion) VALUES (:idUsuario, :hora, :direccion)");
             $stmtInsert->execute([
                 ':idUsuario' => $userId,

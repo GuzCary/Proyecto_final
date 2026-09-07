@@ -1,16 +1,14 @@
 <?php
-// backend/listar_vehiculos.php
-// Este endpoint devuelve la informacion de todos los vehiculos del inventario
-// Es publico
+// backend/vehiculos/listar_vehiculos.php
+// Este endpoint devuelve la informacion de todos los vehiculos del inventario (publico)
 
 
-
+// establecemos el protocolo en JSON
 header("Content-Type: application/json; charset=UTF-8");
-// incuimos la conexion a la db
-require_once __DIR__ . '/../config/conexion.php';
 
-// incluimos el archivo de encriptacion
-require_once __DIR__ . '/encriptar.php'; 
+// incuimos la conexion a la db y las funciones de encriptacion
+require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/encriptar.php'; 
 
 try {
     // Consultamos todos los vehiculos con el nombre de la sucursal
@@ -51,9 +49,9 @@ try {
         $stmtCat->execute([':idVehiculo' => $vehiculo['id']]);
         $vehiculo['categorias'] = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
 
-        // Buscamos las imagenes del vehiculo con formato id_numero.jpg
+        // Buscamos las imagenes del vehiculo con formato id_numero.jpg (lo hace la expresion REGEX) 
         $vehiculo['imagenes'] = [];
-        $imgDir = __DIR__ . '/../img/';
+        $imgDir = __DIR__ . '/../../img/';
         if (is_dir($imgDir)) {
             $archivos = scandir($imgDir);
             foreach ($archivos as $archivo) {

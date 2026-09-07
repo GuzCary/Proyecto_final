@@ -1,13 +1,15 @@
 <?php
-// backend/vehiculos.php
-// Este archivo permite agregar vehiculos al inventario
-// Solo puede ser usado por un usuario autenticado con rol de administrador
+// backend/vehiculos/vehiculo.php
+// Este archivo permite agregar vehiculos al inventario (admin)
 
+
+// iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// incuimos la conexion a la db
+// incuimos la conexion a la db y las funciones de sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -21,24 +23,24 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Recibimos los datos del formulario
-$idSucursal = $_POST['idSucursal'] ?? 1;
-$marca = $_POST['marca'] ?? '';
-$descripcion = $_POST['descripcion'] ?? '';
-$modelo = $_POST['modelo'] ?? '';
-$potencia = $_POST['potencia'] ?? 0;
-$estado = $_POST['estado'] ?? 0;
-$enlaceDocOficial = $_POST['enlaceDocOficial'] ?? '';
-$consumo = $_POST['consumo'] ?? 0;
-$patente = $_POST['patente'] ?? 0;
-$seguroSOA = $_POST['seguroSOA'] ?? 0;
-$seguroTerceros = $_POST['seguroTerceros'] ?? 0;
-$seguroTotal = $_POST['seguroTotal'] ?? 0;
-$anio = $_POST['anio'] ?? 0;
-$km = $_POST['km'] ?? 0;
-$precioMinimo = $_POST['precioMinimo'] ?? 0;
-$precio = $_POST['precio'] ?? 0;
-$categorias = $_POST['categorias'] ?? [];
+// Recibimos los datos del formulario y los verificamos
+$idSucursal = validarEntero($_POST['idSucursal']);
+$marca = sanitizar($_POST['marca']);
+$descripcion = sanitizar($_POST['descripcion']);
+$modelo = sanitizar($_POST['modelo']);
+$potencia = validarEntero($_POST['potencia']);
+$estado = validarEntero($_POST['estado']);
+$enlaceDocOficial = sanitizar($_POST['enlaceDocOficial']);
+$consumo = validarFloat($_POST['consumo']);
+$patente = validarFloat($_POST['patente']);
+$seguroSOA = validarFloat($_POST['seguroSOA']);
+$seguroTerceros = validarFloat($_POST['seguroTerceros']);
+$seguroTotal = validarFloat($_POST['seguroTotal']);
+$anio = validarEntero($_POST['anio']);
+$km = validarEntero($_POST['km']);
+$precioMinimo = validarFloat($_POST['precioMinimo']);
+$precio = validarFloat($_POST['precio']);
+$categorias = sanitizarArray($_POST['categorias']);
 
 // Validamos campos obligatorios
 if (empty($idSucursal) || empty($marca) || empty($modelo) || empty($precio)) {
@@ -93,37 +95,32 @@ try {
         }
     }
 
-    // Si se subieron imagenes, las guardamos con formato idVehiculo_numero.ext
+
+    
+    // Si se subieron imagenes, las guardamos con formato
     if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"])) {
-        $imgDir = __DIR__ . "/../img/";
-        if (!is_dir($imgDir)) {
-            mkdir($imgDir, 0755, true);
-        }
-
-        $extensionesPermitidas = [
-            "image/jpeg" => "jpg",
-            "image/png" => "png",
-            "image/webp" => "webp",
-            "image/gif" => "gif"
-        ];
-
+        $imgDir = __DIR__ . "/../../img/"; 
         $cantidad = count($_FILES["files"]["name"]);
+    
         for ($i = 0; $i < $cantidad; $i++) {
-            if ($_FILES["files"]["error"][$i] !== UPLOAD_ERR_OK) {
+            
+            $archivoActual = [
+                'tmp_name' => $_FILES["files"]["tmp_name"][$i],
+                'error'    => $_FILES["files"]["error"][$i]
+            ];
+    
+            // validamos la imagen y obtenemos su extension
+            $extension = validarImagen($archivoActual);
+    
+           // si hay algun error salteamos esa imagen
+            if ($extension === false) {
                 continue;
             }
-
-            $tmpName = $_FILES["files"]["tmp_name"][$i];
-            $info = getimagesize($tmpName);
-
-            if ($info === false || !isset($extensionesPermitidas[$info["mime"]])) {
-                continue;
-            }
-
-            $extension = $extensionesPermitidas[$info["mime"]];
+    
+            // si todo sale bien armamos el nombre y guardamos la imagen
             $numero = $i + 1;
             $to = $imgDir . $idVehiculo . "_" . $numero . "." . $extension;
-            move_uploaded_file($tmpName, $to);
+            move_uploaded_file($archivoActual['tmp_name'], $to);
         }
     }
 

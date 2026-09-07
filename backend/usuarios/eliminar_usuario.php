@@ -1,13 +1,15 @@
 <?php
 // backend/eliminar_usuario.php
-// Este archivo permite eliminar un usuario del sistema
-// Solo puede ser usado por un usuario autenticado con rol de administrador
+// Este archivo permite eliminar un usuario del sistema (admin)¿
 
+// iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// Incluimos la conexion a la db
+// Incluimos la conexion a la db, las funcione de encriptacion y de sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -21,8 +23,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Recibimos el ID del usuario a eliminar
-$id = $_POST['id'] ?? 99999999;
+// Recibimos el ID encriptado del usuario a eliminar
+$idEncriptado = sanitizar($_POST['id']);
+
+// nos fijamos que no este vacia
+if (empty($idEncriptado)) {
+    echo json_encode(["status" => "error", "message" => "ID de vehiculo no proporcionado."]);
+    exit;
+}
+
+// desenctriptamos el id
+$id = desencriptar($idEncriptado);
 
 // Validamos que el id exista
 if (empty($id)) {
@@ -52,7 +63,7 @@ try {
     $stmt = $con->prepare("DELETE FROM Sanciona WHERE idUsuario = :id OR idAdministrador = :id");
     $stmt->execute([':id' => $id]);
 
-    // Eliminamos de AumentosDeSueldo (como beneficiario o administrador)
+    // Eliminamos de AumentosDeSueldo (como beneficiado o administrador)
     $stmt = $con->prepare("DELETE FROM AumentosDeSueldo WHERE idUsuario = :id OR idAdministrador = :id");
     $stmt->execute([':id' => $id]);
 

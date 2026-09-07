@@ -1,16 +1,16 @@
 <?php
 // backend/modificar_vehiculo.php
-// Este archivo permite modificar un vehiculo ya existente
-// Solo puede ser usado por un usuario administrador
+// Este archivo permite modificar un vehiculo ya existente (admin)
 
+
+// iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// incluimos la conexion a la db
+// incluimos la conexion a la db, las funciones de encriptacion y sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
-
-// incluimos el archivo de encriptacion
-require_once __DIR__ . '/encriptar.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
+require_once __DIR__ . '/../seguridad/sanitizar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// recibimos y desencriptamos el id del vehiclo
+// recibimos y desencriptamos el id del vehiclo, no se puede sanitizar
 $idEncriptado = $_POST['id'] ?? '';
 $id = desencriptar($idEncriptado);
 
@@ -34,24 +34,24 @@ if (!$id) {
     exit;
 }
 
-// Recibimos los datos del formulario
-$idSucursal = $_POST['idSucursal'] ?? null;
-$marca = $_POST['marca'] ?? '';
-$descripcion = $_POST['descripcion'] ?? '';
-$modelo = $_POST['modelo'] ?? '';
-$potencia = $_POST['potencia'] ?? 0;
-$estado = $_POST['estado'] ?? 0;
-$enlaceDocOficial = $_POST['enlaceDocOficial'] ?? '';
-$consumo = $_POST['consumo'] ?? 0;
-$patente = $_POST['patente'] ?? 0;
-$seguroSOA = $_POST['seguroSOA'] ?? 0;
-$seguroTerceros = $_POST['seguroTerceros'] ?? 0;
-$seguroTotal = $_POST['seguroTotal'] ?? 0;
-$anio = $_POST['anio'] ?? 0;
-$km = $_POST['km'] ?? 0;
-$precioMinimo = $_POST['precioMinimo'] ?? 0;
-$precio = $_POST['precio'] ?? 0;
-$categorias = $_POST['categorias'] ?? [];
+// Recibimos y validamos los datos del formulario
+$idSucursal = validarEntero($_POST['idSucursal']);
+$marca = sanitizar($_POST['marca']);
+$descripcion = sanitizar($_POST['descripcion']);
+$modelo = sanitizar($_POST['modelo']);
+$potencia = validarEntero($_POST['potencia']);
+$estado = validarEntero($_POST['estado']);
+$enlaceDocOficial = sanitizar($_POST['enlaceDocOficial']);
+$consumo = validarFloat($_POST['consumo']);
+$patente = validarFloat($_POST['patente']);
+$seguroSOA = validarFloat($_POST['seguroSOA']);
+$seguroTerceros = validarFloat($_POST['seguroTerceros']);
+$seguroTotal = validarFloat($_POST['seguroTotal']);
+$anio = validarEntero($_POST['anio']);
+$km = validarEntero($_POST['km']);
+$precioMinimo = validarFloat($_POST['precioMinimo']);
+$precio = validarFloat($_POST['precio']);
+$categorias = sanitizarArray($_POST['categorias']);
 
 try {
     // Actualizamos usando el id desencriptado
@@ -115,71 +115,65 @@ try {
         }
     }
 
+    
     // --- Manejo de imagenes ---
-    $imgDir = __DIR__ . '/../img/';
-    $extensionesPermitidas = [
-        "image/jpeg" => "jpg",
-        "image/png" => "png",
-        "image/webp" => "webp",
-        "image/gif" => "gif"
-    ];
-
-    if (!is_dir($imgDir)) {
-        mkdir($imgDir, 0755, true);
-    }
-
-    // Eliminamos las imagenes marcadas
+    $imgDir = __DIR__ . '/../../img/'; 
+    
+    // eliminamos las imágenes marcadas
     if (!empty($_POST['eliminarImagenes']) && is_array($_POST['eliminarImagenes'])) {
         foreach ($_POST['eliminarImagenes'] as $nombre) {
+            // basename evita acceso a otros directorios
             $ruta = $imgDir . basename($nombre);
             if (file_exists($ruta)) {
                 unlink($ruta);
             }
         }
     }
-
-    // Reenumeramos las imagenes restantes para evitar huecos
+    
+    // renumeramos las imagenes
     $imagenesVehiculo = [];
     $archivos = scandir($imgDir);
+    
     foreach ($archivos as $archivo) {
         if (preg_match('/^' . $id . '_(\d+)\.[a-zA-Z]+$/', $archivo)) {
             $imagenesVehiculo[] = $archivo;
         }
     }
+    // ordenamos las imagenes 
     sort($imagenesVehiculo);
+    
     foreach ($imagenesVehiculo as $index => $archivoViejo) {
         $nuevoNombre = $id . '_' . ($index + 1) . '.' . pathinfo($archivoViejo, PATHINFO_EXTENSION);
         if ($archivoViejo !== $nuevoNombre) {
             rename($imgDir . $archivoViejo, $imgDir . $nuevoNombre);
         }
     }
-
-    // Agregamos las nuevas imagenes subidas
+    
+    // agregamos las nuevas imagenes subidas verificandolas con validarImagen
     if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"])) {
-        $maxNum = 0;
-        foreach ($imagenesVehiculo as $archivo) {
-            if (preg_match('/^' . $id . '_(\d+)\.[a-zA-Z]+$/', $archivo, $matches)) {
-                $maxNum = max($maxNum, (int)$matches[1]);
-            }
-        }
 
+    
+        $siguienteNumero = count($imagenesVehiculo);
         $cantidad = count($_FILES["files"]["name"]);
+    
         for ($i = 0; $i < $cantidad; $i++) {
-            if ($_FILES["files"]["error"][$i] !== UPLOAD_ERR_OK) {
+            $archivoActual = [
+                'tmp_name' => $_FILES["files"]["tmp_name"][$i],
+                'error'    => $_FILES["files"]["error"][$i]
+            ];
+    
+            
+            $extension = validarImagen($archivoActual);
+    
+            // Si la imagen no es válida o falló, la salteamos
+            if ($extension === false) {
                 continue;
             }
-
-            $tmpName = $_FILES["files"]["tmp_name"][$i];
-            $info = getimagesize($tmpName);
-
-            if ($info === false || !isset($extensionesPermitidas[$info["mime"]])) {
-                continue;
-            }
-
-            $extension = $extensionesPermitidas[$info["mime"]];
-            $numero = $maxNum + $i + 1;
-            $to = $imgDir . $id . "_" . $numero . "." . $extension;
-            move_uploaded_file($tmpName, $to);
+    
+            // Incrementamos el contador solo si la imagen es válida (así evitamos huecos)
+            $siguienteNumero++;
+            $to = $imgDir . $id . "_" . $siguienteNumero . "." . $extension;
+            move_uploaded_file($archivoActual['tmp_name'], $to);
         }
     }
 

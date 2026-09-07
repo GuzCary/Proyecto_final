@@ -3,12 +3,13 @@
 // Este archivo permite eliminar un vehiculo del inventario.
 // Solo puede ser usado por un usuario administrador.
 
+// iniciamos la sesion y establecemos el protocolo JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
 //incuimos la conexion a la db y las funciones de encriptacion
 require_once __DIR__ . '/../config/conexion.php';
-require_once __DIR__ . '/encriptar.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
 
 // Verificamos que el usuario este logueado y sea administrador.
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -22,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Recibimos el ID encriptado del vehiculo a eliminar.
+// Recibimos el ID encriptado del vehiculo a eliminar, no se puede sanitizar
 $idEncriptado = $_POST['id'] ?? '';
 
 // nos fijamos que no este vacia
@@ -31,6 +32,7 @@ if (empty($idEncriptado)) {
     exit;
 }
 
+// desencriptamos la id
 $id = desencriptar($idEncriptado);
 if ($id === false || $id === '') {
     echo json_encode(["status" => "error", "message" => "ID de vehiculo invalido."]);
