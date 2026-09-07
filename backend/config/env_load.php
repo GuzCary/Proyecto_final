@@ -9,4 +9,4 @@
 //   DB_PASS=
 //   CLAVE=  
 
-return parse_ini_file(__DIR__ . '/../.env');
+return parse_ini_file(__DIR__ . '/../../.env');
