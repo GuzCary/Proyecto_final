@@ -13,6 +13,7 @@ async function cargarVehiculos() {
         if (data.status !== 'success') {
             contenedor.innerHTML = `<p>Error: ${data.message}</p>`;
             return;
+        }
         
 
         
@@ -85,7 +86,7 @@ async function cargarVehiculos() {
             `;
 
             contenedor.appendChild(card);
-        });}
+        });
 
     } catch (error) {
         contenedor.innerHTML = `<p>Error al conectar con el servidor: ${error.message}</p>`;
