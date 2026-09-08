@@ -1,4 +1,4 @@
-/* Reset básico estructural */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,65 +6,53 @@
 }
 
 body {
-    font-family: sans-serif;
+   
     background-color: #f4f4f4;
     color: #222;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* =========================================
-   HEADER (Flexbox)
-   ========================================= */
+
 .header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 15px 20px;
     background-color: #ddd;
     border-bottom: 1px solid #ccc;
 }
 
-/* =========================================
-   CONTENEDOR PRINCIPAL
-   ========================================= */
+
 .main-container {
-    flex: 1;
+    
     padding: 20px;
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
 }
 
-/* =========================================
-   GRILLA DE VEHÍCULOS (CSS Grid Responsive)
-   ========================================= */
 
-/* 1. MÓVIL (< 768px): 1 columna */
 .vehiculos-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
 }
 
-/* 2. TABLET (768px a 1024px): 2 columnas */
-@media (min-width: 768px) {
+
+@media (min-width: 700px) {
     .vehiculos-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr 1fr ;
     }
 }
 
-/* 3. PC / ESCRITORIO (> 1024px): 3 columnas */
+
 @media (min-width: 1024px) {
     .vehiculos-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr 1fr 1fr;
     }
 }
 
-/* =========================================
-   CARD DE VEHÍCULO (Flexbox y Grid interno)
-   ========================================= */
+
 .vehiculo-card {
     background: #fff;
     border: 1px solid #bbb;
@@ -74,7 +62,7 @@ body {
     gap: 12px;
 }
 
-/* Galería de imágenes (Flexbox con scroll horizontal si hay muchas) */
+
 .vehiculo-imagenes {
     display: flex;
     gap: 8px;
@@ -88,7 +76,7 @@ body {
     border: 1px solid #eee;
 }
 
-/* Título y estado (Flexbox) */
+
 .vehiculo-header {
     display: flex;
     justify-content: space-between;
@@ -128,4 +116,9 @@ body {
     border-top: 1px solid #eee;
     padding-top: 10px;
     margin-top: auto;
+}
+
+.id{
+
+    display: none;
 }

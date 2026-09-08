@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function cargarVehiculos() {
     const contenedor = document.getElementById('contenedor-vehiculos');
-    const totalVehiculos = document.getElementById('total-vehiculos');
+    
 
     try {
         const respuesta = await fetch('../../backend/vehiculos/listar_vehiculos.php');
@@ -13,9 +13,9 @@ async function cargarVehiculos() {
         if (data.status !== 'success') {
             contenedor.innerHTML = `<p>Error: ${data.message}</p>`;
             return;
-        }
+        
 
-        totalVehiculos.textContent = `Total vehículos: ${data.cantidad}`;
+        
         contenedor.innerHTML = '';
 
         if (data.vehiculos.length === 0) {
@@ -27,7 +27,7 @@ async function cargarVehiculos() {
             const card = document.createElement('article');
             card.classList.add('vehiculo-card');
 
-            // 1. Render de imágenes
+            
             let htmlImagenes = '<p>Sin imágenes</p>';
             if (v.imagenes && v.imagenes.length > 0) {
                 htmlImagenes = v.imagenes.map(img => 
@@ -35,7 +35,7 @@ async function cargarVehiculos() {
                 ).join('');
             }
 
-            // 2. Render de categorías
+            
             let htmlCategorias = '<span class="categoria-tag">Sin categoría</span>';
             if (v.categorias && v.categorias.length > 0) {
                 htmlCategorias = v.categorias.map(cat => 
@@ -43,10 +43,10 @@ async function cargarVehiculos() {
                 ).join('');
             }
 
-            // Estado (1: Disponible, 0: Vendido/Inactivo)
-            const estadoTexto = v.estado == 1 ? 'Disponible' : 'Vendido / No disponible';
+           
+            
 
-            // 3. Renderizado de todos los datos
+            
             card.innerHTML = `
                 <div class="vehiculo-imagenes">
                     ${htmlImagenes}
@@ -54,7 +54,7 @@ async function cargarVehiculos() {
 
                 <div class="vehiculo-header">
                     <h2>${v.marca} ${v.modelo}</h2>
-                    <strong>${estadoTexto}</strong>
+                    <strong>${v.estado}</strong>
                 </div>
 
                 <p><strong>Descripción:</strong> ${v.descripcion || 'Sin descripción'}</p>
@@ -78,15 +78,14 @@ async function cargarVehiculos() {
 
                 <div class="vehiculo-footer">
                     <div>
-                        <small>Mínimo: $${v.precioMinimo || 0}</small><br>
                         <strong>Precio: $${v.precio}</strong>
                     </div>
-                    <small>ID: ${v.id}</small>
+                    <div class="id">ID: ${v.id}</div>
                 </div>
             `;
 
             contenedor.appendChild(card);
-        });
+        });}
 
     } catch (error) {
         contenedor.innerHTML = `<p>Error al conectar con el servidor: ${error.message}</p>`;

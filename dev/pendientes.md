@@ -61,3 +61,5 @@ a los usuarios registrar una marca
 agregar usuarios por funcionalidad
 
 eliminmar usuario root, o poner contraseña
+
+hacer que no se pase el precio minimo si no es user
