@@ -23,11 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 setTimeout(() => {
                     if (data.rol === 'admin') {
-                        window.location.href = '../admin/index.html';
+                        window.location.href = '../admin/vehiculos/index.html';
                     } else if (data.rol === 'user') {
-                        window.location.href = '../vendedor/index.html';
+                        window.location.href = '../vendedor/ventas/index.html';
                     } else if (data.rol === 'limp') {
-                        window.location.href = '../limpieza/index.html';
+                        window.location.href = '../limpieza/productos/index.html';
                     }
                 }, 800);
             } else {
