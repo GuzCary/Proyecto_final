@@ -49,16 +49,9 @@ body {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-}
-
-@media (min-width: 768px) {
-    .main-container {
-        grid-template-columns: 320px 1fr;
-        align-items: start;
-    }
 }
 
 .card {
@@ -128,11 +121,18 @@ body {
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .items-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 @media (min-width: 1024px) {
     .items-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
     }
 }
 
@@ -143,6 +143,7 @@ body {
     padding: 10px;
     background: #fafafa;
     border: 1px solid #eee;
+    min-width: 0;
 }
 
 .item-actions {

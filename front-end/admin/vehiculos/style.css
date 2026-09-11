@@ -69,22 +69,6 @@ body {
     gap: 10px;
 }
 
-@media (min-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (min-width: 1024px) {
-    .form-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-}
-
-.full-width {
-    grid-column: 1 / -1;
-}
-
 .form-group {
     display: flex;
     flex-direction: column;
@@ -116,7 +100,6 @@ body {
     font-size: 13px;
 }
 
-/* Fotos existentes en el formulario de edición */
 .fotos-existentes-grid {
     display: flex;
     flex-wrap: wrap;
@@ -150,7 +133,6 @@ body {
     cursor: pointer;
 }
 
-/* Botones */
 .btn-primary {
     background: #333;
     color: #fff;
@@ -183,11 +165,12 @@ body {
     cursor: pointer;
 }
 
-/* Grilla de cartas de vehículos */
+/* Grilla de vehículos: 1 col (celular) -> 2 cols (tablet) -> 3 cols (PC) */
 .vehiculos-admin-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
+    width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -196,13 +179,13 @@ body {
     }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
     .vehiculos-admin-grid {
         grid-template-columns: 1fr 1fr 1fr;
     }
 }
 
-/* Carta de vehículo */
+/* min-width: 0 evita que el scroll de fotos desborde la tarjeta */
 .vehiculo-admin-card {
     background: #fff;
     border: 1px solid #bbb;
@@ -210,18 +193,21 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
+    overflow: hidden;
 }
 
-/* Scroll lateral de imágenes */
 .vehiculo-imagenes {
     display: flex;
     gap: 8px;
     overflow-x: auto;
     padding-bottom: 5px;
+    width: 100%;
+    min-width: 0;
 }
 
 .vehiculo-imagenes img {
-    height: 160px;
+    height: 140px;
     width: auto;
     object-fit: cover;
     border: 1px solid #eee;
@@ -264,6 +250,8 @@ body {
     background: #fafafa;
     padding: 10px;
     border: 1px solid #eee;
+    min-width: 0;
+    word-break: break-word;
 }
 
 .vehiculo-precios {

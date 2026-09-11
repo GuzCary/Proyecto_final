@@ -29,7 +29,7 @@ body {
 
 .main-container {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -48,7 +48,8 @@ body {
 .ventas-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 15px;
+    width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -70,6 +71,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
 }
 
 .btn-vender {
@@ -85,6 +87,19 @@ body {
     display: grid;
     grid-template-columns: 1fr;
     gap: 8px;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .historial-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 1024px) {
+    .historial-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
 }
 
 .item-historial {
@@ -93,6 +108,7 @@ body {
     padding: 8px;
     background: #fdfdfd;
     border: 1px solid #eee;
+    min-width: 0;
 }
 
 .mensaje-alerta {
