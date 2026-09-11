@@ -1,23 +1,8 @@
-
-    
 <!--filtrar y validar todos los datos que entran al servidor -->
 
+<!--registrar ventas-->
 
-
-
-
-
-
-    
-registrar ventas
 buscar vehiculos con filtros
-    
-
-
-
-
-
-
 
 <!-- crear un usuario  -->
 editarlo
@@ -31,17 +16,9 @@ eliminarla
 <!-- editarla -->
 <!-- eliminarla -->
 
-registrar transacciones de dinero 
-
 <!-- crear un vehiculo -->
 <!-- editarlo -->
-registrarlo como vendido
-darle de baja
-
-
-
-
-
+<!--registrarlo como vendido-->
 
 
 a los administradores registrar transacciones
@@ -52,14 +29,15 @@ a los administradores registrar sanciones
 
 a los funcionarios registrar su licencia de conducir
 
-a los de limpieza registrar sus usos de productos
+<!--a los de limpieza registrar sus usos de productos-->
 
-a los usuarios registrar una marca
+<!--a los usuarios registrar una marca-->
+
+hacer que no se pase el precio minimo si no es user
 
 
-
+DB:
 agregar usuarios por funcionalidad
 
 eliminmar usuario root, o poner contraseña
 
-hacer que no se pase el precio minimo si no es user
