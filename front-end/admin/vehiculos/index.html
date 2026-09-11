@@ -20,11 +20,12 @@
     </header>
 
     <main class="main-container">
+        <!-- Formulario Crear/Editar -->
         <section class="card">
             <h2 id="form-titulo">Agregar Vehículo</h2>
             <form id="form-vehiculo" class="form-grid">
                 <input type="hidden" id="id" name="id">
-                
+
                 <div class="form-group">
                     <label for="idSucursal">Sucursal</label>
                     <select id="idSucursal" name="idSucursal" required>
@@ -43,13 +44,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="precio">Precio</label>
+                    <label for="precio">Precio ($)</label>
                     <input type="number" step="0.01" id="precio" name="precio" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="precioMinimo">Precio Mínimo</label>
+                    <label for="precioMinimo">Precio Mínimo ($)</label>
                     <input type="number" step="0.01" id="precioMinimo" name="precioMinimo">
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">Estado General (1 al 10)</label>
+                    <input type="number" id="estado" name="estado" min="1" max="10" value="10" required>
                 </div>
 
                 <div class="form-group">
@@ -73,31 +79,23 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="patente">Patente anual</label>
+                    <label for="patente">Patente anual ($)</label>
                     <input type="number" step="0.01" id="patente" name="patente">
                 </div>
 
                 <div class="form-group">
-                    <label for="seguroSOA">Seguro SOA</label>
+                    <label for="seguroSOA">Seguro SOA ($)</label>
                     <input type="number" step="0.01" id="seguroSOA" name="seguroSOA">
                 </div>
 
                 <div class="form-group">
-                    <label for="seguroTerceros">Seguro Terceros</label>
+                    <label for="seguroTerceros">Seguro Terceros ($)</label>
                     <input type="number" step="0.01" id="seguroTerceros" name="seguroTerceros">
                 </div>
 
                 <div class="form-group">
-                    <label for="seguroTotal">Seguro Total</label>
+                    <label for="seguroTotal">Seguro Total ($)</label>
                     <input type="number" step="0.01" id="seguroTotal" name="seguroTotal">
-                </div>
-
-                <div class="form-group">
-                    <label for="estado">Estado</label>
-                    <select id="estado" name="estado">
-                        <option value="1">Disponible</option>
-                        <option value="0">No disponible</option>
-                    </select>
                 </div>
 
                 <div class="form-group full-width">
@@ -106,8 +104,8 @@
                 </div>
 
                 <div class="form-group full-width">
-                    <label for="enlaceDocOficial">Enlace Documento Oficial</label>
-                    <input type="url" id="enlaceDocOficial" name="enlaceDocOficial">
+                    <label for="enlaceDocOficial">Enlace a Documento Oficial</label>
+                    <input type="text" id="enlaceDocOficial" name="enlaceDocOficial" placeholder="https://...">
                 </div>
 
                 <div class="form-group full-width">
@@ -115,8 +113,14 @@
                     <div id="contenedor-checkbox-categorias" class="categorias-checkbox-grid"></div>
                 </div>
 
+                <!-- Sección de fotos existentes al editar -->
+                <div id="seccion-fotos-existentes" class="form-group full-width" style="display: none;">
+                    <label>Imágenes actuales (marca las que quieras eliminar):</label>
+                    <div id="contenedor-imagenes-existentes" class="fotos-existentes-grid"></div>
+                </div>
+
                 <div class="form-group full-width">
-                    <label for="files">Imágenes</label>
+                    <label for="files">Subir nuevas imágenes</label>
                     <input type="file" id="files" name="files[]" multiple accept="image/*">
                 </div>
 
@@ -128,6 +132,7 @@
             <div id="mensaje" class="mensaje-alerta"></div>
         </section>
 
+        <!-- Listado completo -->
         <section class="card">
             <h2>Vehículos en Inventario</h2>
             <div id="contenedor-vehiculos" class="vehiculos-admin-grid"></div>
