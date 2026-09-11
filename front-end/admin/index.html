@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Panel de Administración</h1>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+    </header>
+
+    <main class="main-container">
+        <section class="bienvenida-card">
+            <h2>Bienvenido, <span id="nombre-usuario">Administrador</span></h2>
+            <p>Selecciona el módulo del sistema al que deseas ingresar:</p>
+        </section>
+
+        <section class="modulos-grid">
+            <article class="card-modulo">
+                <h3>Vehículos</h3>
+                <p>Gestionar inventario de vehículos, precios, detalles e imágenes.</p>
+                <a href="vehiculos/index.html" class="btn-modulo">Ir a Vehículos</a>
+            </article>
+
+            <article class="card-modulo">
+                <h3>Categorías</h3>
+                <p>Crear, editar o eliminar las categorías de vehículos del sistema.</p>
+                <a href="categorias/index.html" class="btn-modulo">Ir a Categorías</a>
+            </article>
+
+            <article class="card-modulo">
+                <h3>Usuarios</h3>
+                <p>Administrar cuentas de empleados, asignar roles y dar de baja.</p>
+                <a href="usuarios/index.html" class="btn-modulo">Ir a Usuarios</a>
+            </article>
+
+            <article class="card-modulo">
+                <h3>Marcas</h3>
+                <p>Consultar los registros de asistencia y marcas de los empleados.</p>
+                <a href="marcas/index.html" class="btn-modulo">Ver Registro</a>
+            </article>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
