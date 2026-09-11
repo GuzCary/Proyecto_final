@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Limpieza</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Panel de Limpieza</h1>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+    </header>
+
+    <main class="main-container">
+        <section class="bienvenida-card">
+            <h2>Bienvenido, <span id="nombre-usuario">Personal</span></h2>
+            <p>Accede a la gestión de insumos y consumibles:</p>
+        </section>
+
+        <section class="modulos-grid">
+            <article class="card-modulo">
+                <h3>Insumos y Stock</h3>
+                <p>Consultar inventario de productos, registrar nuevos insumos y actualizar cantidades.</p>
+                <a href="productos/index.html" class="btn-modulo">Ir a Insumos</a>
+            </article>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

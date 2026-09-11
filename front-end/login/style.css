@@ -4,59 +4,88 @@
     padding: 0;
 }
 
-/* Centrado con Flexbox */
+body {
+    background-color: #f4f4f4;
+    color: #222;
+    font-family: sans-serif;
+}
+
 .login-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 10px;
+    padding: 15px;
 }
 
-/* 1. CELULAR (< 768px): Ancho completo */
 .login-card {
-    width: 370px;
+    background: #fff;
+    border: 1px solid #bbb;
+    padding: 25px;
+    width: 100%;
+    max-width: 380px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
-/* 2. TABLET (768px a 1024px) */
 @media (min-width: 768px) {
     .login-card {
-        width: 450px;
+        max-width: 450px;
     }
 }
 
-/* 3. PC (> 1024px) */
-@media (min-width: 1024px) {
-    .login-card {
-        width: 580px;
-    }
+.login-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-/* Formulario con Grid */
+.login-header p {
+    color: #666;
+    font-size: 14px;
+}
+
 .login-form {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
 }
 
-/* Campos con Flexbox */
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-/* Cabecera y footer */
-.login-header,
-.login-footer {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+.form-group label {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.form-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.btn-ingresar {
+    background: #333;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.btn-ingresar:hover {
+    background: #555;
 }
 
 .mensaje-alerta {
     display: none;
+    padding: 10px;
+    font-size: 14px;
+    text-align: center;
 }

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Vendedor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Panel de Vendedor</h1>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+    </header>
+
+    <main class="main-container">
+        <section class="bienvenida-card">
+            <h2>Bienvenido, <span id="nombre-usuario">Vendedor</span></h2>
+            <p>Selecciona una opción para comenzar tu jornada:</p>
+        </section>
+
+        <section class="modulos-grid">
+            <article class="card-modulo">
+                <h3>Ventas de Vehículos</h3>
+                <p>Ver catálogo de vehículos en stock, registrar nuevas ventas e historial.</p>
+                <a href="ventas/index.html" class="btn-modulo">Ir a Ventas</a>
+            </article>
+
+            <article class="card-modulo">
+                <h3>Catálogo Público</h3>
+                <p>Ver la vista de vehículos pública tal como la ven los clientes.</p>
+                <a href="../index/index.html" class="btn-modulo">Ver Catálogo</a>
+            </article>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
