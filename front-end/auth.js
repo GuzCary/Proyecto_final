@@ -1,33 +1,46 @@
-// Verifica si hay una sesion activa y si el usuario tiene el rol esperado
-// Si no cumple, redirige al login. Si cumple, ejecuta la funcion "siInicioSesion" pasandole los datos del usuario
-function verificarSesion(rolEsperado, siInicioSesion) {
-    fetch("../backend/auth.php")
-        .then(res => res.json())
-        .then(datos => {
-            if (!datos.logueado || datos.usuario_rol !== rolEsperado) {
-                window.location.href = "login.html";
-            } else {
-                siInicioSesion(datos);
-            }
-        });
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('form-login');
+    const mensaje = document.getElementById('mensaje');
 
-// Si existe en la pagina, se agrega el evento de logout al boton
-function activarLogout() {
-    const btnLogout = document.getElementById("btnLogout");
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        mensaje.style.display = 'none';
 
-    // Si la pagina no tiene boton de logout, no se hace nada
-    if (!btnLogout) {
-        return;
-    }
+        const formData = new FormData(form);
 
-    btnLogout.addEventListener("click", () => {
-        fetch("../backend/logout.php")
-            .then(res => res.json())
-            .then(resultado => {
-                if (resultado.status === "success") {
-                    window.location.href = "login.html";
-                }
+        try {
+            const res = await fetch('../../backend/seguridad/login.php', {
+                method: 'POST',
+                body: formData
             });
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                mensaje.style.display = 'block';
+                mensaje.style.backgroundColor = '#d4edda';
+                mensaje.style.color = '#155724';
+                mensaje.textContent = 'Sesión iniciada. Redirigiendo...';
+
+                setTimeout(() => {
+                    if (data.rol === 'admin') {
+                        window.location.href = '../admin/vehiculos/index.html';
+                    } else if (data.rol === 'user') {
+                        window.location.href = '../vendedor/ventas/index.html';
+                    } else if (data.rol === 'limp') {
+                        window.location.href = '../limpieza/productos/index.html';
+                    }
+                }, 800);
+            } else {
+                mensaje.style.display = 'block';
+                mensaje.style.backgroundColor = '#f8d7da';
+                mensaje.style.color = '#721c24';
+                mensaje.textContent = data.message || 'Credenciales incorrectas.';
+            }
+        } catch (error) {
+            mensaje.style.display = 'block';
+            mensaje.style.backgroundColor = '#f8d7da';
+            mensaje.style.color = '#721c24';
+            mensaje.textContent = 'Error de conexión con el servidor.';
+        }
     });
-}
+});
