@@ -14,27 +14,14 @@ require_once __DIR__ . '/../seguridad/encriptar.php';
 try {
     // Consultamos todos los vehiculos con el nombre de la sucursal
     $stmt = $con->prepare("
-        SELECT
-            Vehiculo.id,
-            Vehiculo.marca,
-            Vehiculo.modelo,
-            Vehiculo.descripcion,
-            Vehiculo.patente,
-            Vehiculo.seguroSOA,
-            Vehiculo.seguroTerceros,
-            Vehiculo.seguroTotal,
-            Vehiculo.anio,
-            Vehiculo.km,
-            Vehiculo.precio,
-            Vehiculo.precioMinimo,
-            Vehiculo.potencia,
-            Vehiculo.consumo,
-            Vehiculo.estado,
-            Vehiculo.enlaceDocOficial,
-            Sucursal.nombre AS sucursal
-        FROM Vehiculo
-        INNER JOIN Sucursal ON Vehiculo.idSucursal = Sucursal.id
-        ORDER BY Vehiculo.id DESC
+    SELECT
+        Vehiculo.*,
+        Sucursal.nombre AS sucursal,
+        IF(Ventas.idVenta IS NOT NULL, 1, 0) AS vendido
+    FROM Vehiculo
+    INNER JOIN Sucursal ON Vehiculo.idSucursal = Sucursal.id
+    LEFT JOIN Ventas ON Vehiculo.id = Ventas.idVehiculo
+    ORDER BY Vehiculo.id DESC
     ");
     $stmt->execute();
     $vehiculos = $stmt->fetchAll(PDO::FETCH_ASSOC);

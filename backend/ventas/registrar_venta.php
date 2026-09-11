@@ -57,9 +57,6 @@ try {
         ':idFuncionario' => $idFuncionario
     ]);
 
-    // 3. Cambiamos el estado del vehículo a 0 (inactivo/vendido) para que no se venda dos veces
-    $stmtVehiculo = $con->prepare("UPDATE Vehiculo SET estado = 0 WHERE id = :id");
-    $stmtVehiculo->execute([':id' => $idVehiculo]);
 
     echo json_encode([
         "status"  => "success",

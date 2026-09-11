@@ -16,7 +16,8 @@ async function cargarVehiculosDisponibles() {
         const data = await res.json();
         contenedorDisponibles.innerHTML = '';
 
-        const disponibles = (data.vehiculos || []).filter(v => v.estado == 1);
+        // Disponibles para vender: los que NO están en la tabla Ventas
+        const disponibles = data.vehiculos.filter(v => v.vendido == 0);
 
         if (disponibles.length === 0) {
             contenedorDisponibles.innerHTML = '<p>No hay vehículos disponibles para vender.</p>';
