@@ -7,8 +7,8 @@ session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
 // Incluimos la conexión y encriptación
-require_once __DIR__ . '/../../config/conexion.php';
-require_once __DIR__ . '/../../seguridad/encriptar.php';
+require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
 
 // Verificamos que la petición sea GET
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
