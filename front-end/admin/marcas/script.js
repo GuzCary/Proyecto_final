@@ -23,7 +23,7 @@ async function cargarMarcas() {
             div.innerHTML = `
                 <strong>Empleado: ${m.usuario}</strong>
                 <span>Hora: ${m.hora}</span>
-                <small>Ubicación: ${m.direccion}</small>
+                <small>Direccion: ${m.direccion}</small>
             `;
             contenedor.appendChild(div);
         });
