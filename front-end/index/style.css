@@ -6,7 +6,7 @@
 }
 
 body {
-   
+
     background-color: #f4f4f4;
     color: #222;
     height: 100vh;
@@ -24,7 +24,7 @@ body {
 
 
 .main-container {
-    
+
     padding: 20px;
     width: 100%;
     max-width: 1400px;

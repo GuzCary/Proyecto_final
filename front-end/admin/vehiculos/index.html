@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Vehículos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Admin - Inventario</h1>
+        <nav class="nav">
+            <a href="../vehiculos/index.html" class="active">Vehículos</a>
+            <a href="../categorias/index.html">Categorías</a>
+            <a href="../usuarios/index.html">Usuarios</a>
+            <a href="../marcas/index.html">Marcas</a>
+        </nav>
+        <button id="btnLogout" class="btn-logout">Salir</button>
+    </header>
+
+    <main class="main-container">
+        <section class="card">
+            <h2 id="form-titulo">Agregar Vehículo</h2>
+            <form id="form-vehiculo" class="form-grid">
+                <input type="hidden" id="id" name="id">
+                
+                <div class="form-group">
+                    <label for="idSucursal">Sucursal</label>
+                    <select id="idSucursal" name="idSucursal" required>
+                        <option value="1">Sucursal Central</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="marca">Marca</label>
+                    <input type="text" id="marca" name="marca" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="modelo">Modelo</label>
+                    <input type="text" id="modelo" name="modelo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="precio">Precio</label>
+                    <input type="number" step="0.01" id="precio" name="precio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="precioMinimo">Precio Mínimo</label>
+                    <input type="number" step="0.01" id="precioMinimo" name="precioMinimo">
+                </div>
+
+                <div class="form-group">
+                    <label for="anio">Año</label>
+                    <input type="number" id="anio" name="anio">
+                </div>
+
+                <div class="form-group">
+                    <label for="km">Kilómetros</label>
+                    <input type="number" id="km" name="km">
+                </div>
+
+                <div class="form-group">
+                    <label for="potencia">Potencia (HP)</label>
+                    <input type="number" id="potencia" name="potencia">
+                </div>
+
+                <div class="form-group">
+                    <label for="consumo">Consumo (L/100km)</label>
+                    <input type="number" step="0.1" id="consumo" name="consumo">
+                </div>
+
+                <div class="form-group">
+                    <label for="patente">Patente anual</label>
+                    <input type="number" step="0.01" id="patente" name="patente">
+                </div>
+
+                <div class="form-group">
+                    <label for="seguroSOA">Seguro SOA</label>
+                    <input type="number" step="0.01" id="seguroSOA" name="seguroSOA">
+                </div>
+
+                <div class="form-group">
+                    <label for="seguroTerceros">Seguro Terceros</label>
+                    <input type="number" step="0.01" id="seguroTerceros" name="seguroTerceros">
+                </div>
+
+                <div class="form-group">
+                    <label for="seguroTotal">Seguro Total</label>
+                    <input type="number" step="0.01" id="seguroTotal" name="seguroTotal">
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select id="estado" name="estado">
+                        <option value="1">Disponible</option>
+                        <option value="0">No disponible</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="2"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="enlaceDocOficial">Enlace Documento Oficial</label>
+                    <input type="url" id="enlaceDocOficial" name="enlaceDocOficial">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Categorías</label>
+                    <div id="contenedor-checkbox-categorias" class="categorias-checkbox-grid"></div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="files">Imágenes</label>
+                    <input type="file" id="files" name="files[]" multiple accept="image/*">
+                </div>
+
+                <div class="form-acciones full-width">
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" id="btn-cancelar" class="btn-secondary" style="display: none;">Cancelar</button>
+                </div>
+            </form>
+            <div id="mensaje" class="mensaje-alerta"></div>
+        </section>
+
+        <section class="card">
+            <h2>Vehículos en Inventario</h2>
+            <div id="contenedor-vehiculos" class="vehiculos-admin-grid"></div>
+        </section>
+    </main>
+
+    <script src="../../auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

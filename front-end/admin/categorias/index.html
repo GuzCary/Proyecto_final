@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Categorías</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Admin - Categorías</h1>
+        <nav class="nav">
+            <a href="../vehiculos/index.html">Vehículos</a>
+            <a href="../categorias/index.html" class="active">Categorías</a>
+            <a href="../usuarios/index.html">Usuarios</a>
+            <a href="../marcas/index.html">Marcas</a>
+        </nav>
+        <button id="btnLogout" class="btn-logout">Salir</button>
+    </header>
+
+    <main class="main-container">
+        <section class="card">
+            <h2 id="form-titulo">Agregar Categoría</h2>
+            <form id="form-categoria" class="form-grid">
+                <input type="hidden" id="id_encriptado" name="id_encriptado">
+
+                <div class="form-group">
+                    <label for="nombre">Nombre de la categoría</label>
+                    <input type="text" id="nombre" name="nombre" required autocomplete="off">
+                </div>
+
+                <div class="form-acciones">
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" id="btn-cancelar" class="btn-secondary" style="display: none;">Cancelar</button>
+                </div>
+            </form>
+            <div id="mensaje" class="mensaje-alerta"></div>
+        </section>
+
+        <section class="card">
+            <h2>Categorías Registradas</h2>
+            <div id="contenedor-categorias" class="items-grid"></div>
+        </section>
+    </main>
+
+    <script src="../../auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

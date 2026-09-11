@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Usuarios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Admin - Usuarios</h1>
+        <nav class="nav">
+            <a href="../vehiculos/index.html">Vehículos</a>
+            <a href="../categorias/index.html">Categorías</a>
+            <a href="../usuarios/index.html" class="active">Usuarios</a>
+            <a href="../marcas/index.html">Marcas</a>
+        </nav>
+        <button id="btnLogout" class="btn-logout">Salir</button>
+    </header>
+
+    <main class="main-container">
+        <section class="card">
+            <h2>Agregar Usuario</h2>
+            <form id="form-usuario" class="form-grid">
+                <div class="form-group">
+                    <label for="usuario">Nombre de usuario</label>
+                    <input type="text" id="usuario" name="usuario" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="contrasenia">Contraseña</label>
+                    <input type="password" id="contrasenia" name="contrasenia" required autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="rol">Rol del sistema</label>
+                    <select id="rol" name="rol" required>
+                        <option value="admin">Administrador</option>
+                        <option value="user">Vendedor</option>
+                        <option value="limp">Limpieza</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary">Registrar</button>
+            </form>
+            <div id="mensaje" class="mensaje-alerta"></div>
+        </section>
+
+        <section class="card">
+            <h2>Usuarios del Sistema</h2>
+            <div id="contenedor-usuarios" class="items-grid"></div>
+        </section>
+    </main>
+
+    <script src="../../auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

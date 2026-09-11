@@ -1,0 +1,82 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #f4f4f4;
+    color: #222;
+    font-family: sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #ddd;
+    border-bottom: 1px solid #ccc;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.nav {
+    display: flex;
+    gap: 10px;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #333;
+    padding: 4px 8px;
+}
+
+.nav a.active {
+    font-weight: bold;
+    border-bottom: 2px solid #333;
+}
+
+.btn-logout {
+    background: #721c24;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.main-container {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #bbb;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.marcas-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+@media (min-width: 768px) {
+    .marcas-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.marca-item {
+    padding: 10px;
+    background: #fafafa;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}

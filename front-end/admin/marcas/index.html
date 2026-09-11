@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Marcas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Admin - Registro de Marcas</h1>
+        <nav class="nav">
+            <a href="../vehiculos/index.html">Vehículos</a>
+            <a href="../categorias/index.html">Categorías</a>
+            <a href="../usuarios/index.html">Usuarios</a>
+            <a href="../marcas/index.html" class="active">Marcas</a>
+        </nav>
+        <button id="btnLogout" class="btn-logout">Salir</button>
+    </header>
+
+    <main class="main-container">
+        <section class="card">
+            <h2>Asistencias y Marcas Recientes</h2>
+            <div id="contenedor-marcas" class="marcas-grid"></div>
+        </section>
+    </main>
+
+    <script src="../../auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
