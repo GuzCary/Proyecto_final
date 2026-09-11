@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Asistencia - Reloj</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="marcas-wrapper">
+        <section class="marcas-card">
+            <header class="marcas-header">
+                <h2>Reloj de Asistencia</h2>
+                <p>Registro de entrada y salida de personal</p>
+            </header>
+
+            <!-- Reloj y Fecha en tiempo real -->
+            <div class="reloj-contenedor">
+                <span id="reloj-hora">00:00:00</span>
+                <small id="reloj-fecha">Cargando fecha...</small>
+            </div>
+
+            <!-- Formulario de marcado -->
+            <form id="form-marca" class="marcas-form">
+                <div class="form-group">
+                    <label for="usuario">Nombre de Usuario</label>
+                    <input type="text" id="usuario" name="usuario" required autocomplete="off" placeholder="Ingresa tu usuario">
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion">Tipo de Marca</label>
+                    <select id="direccion" name="direccion" required>
+                        <option value="Entrada">Entrada</option>
+                        <option value="Salida">Salida</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-marcar">Registrar Marca</button>
+            </form>
+
+            <div id="mensaje" class="mensaje-alerta"></div>
+
+            <footer class="marcas-footer">
+                <a href="../login/login.html">Ir al Inicio de Sesión</a>
+            </footer>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
