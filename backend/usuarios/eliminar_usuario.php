@@ -1,116 +1,79 @@
 <?php
-// backend/usuarios/eliminar_usuario.php
-// Este archivo permite eliminar un usuario del sistema (admin)
+// backend/usuarios/eliminar_usuario.php 
+// este archivo permite dar de baja a un usuario (admin)
 
 // iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// Incluimos la conexion a la db, las funcione de encriptacion y de sanitizacion
+// incluimos la conexion y las funciones de encriptacion y sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/encriptar.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
 
-// Verificamos que el usuario este logueado y sea administrador
+// Verificar permisos de administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
     echo json_encode(["status" => "error", "message" => "Acceso denegado. Se requiere rol de administrador."]);
     exit;
 }
 
-// Verificamos que la peticion sea POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(["status" => "error", "message" => "Metodo no permitido."]);
+    echo json_encode(["status" => "error", "message" => "Método no permitido."]);
     exit;
 }
 
-// Recibimos el ID encriptado del usuario a eliminar
-$idEncriptado = sanitizar($_POST['id']);
+$idEncriptado = sanitizar($_POST['id'] ?? '');
+$tipoBaja = sanitizar($_POST['tipo'] ?? '' ); 
 
-// nos fijamos que no este vacia
 if (empty($idEncriptado)) {
-    echo json_encode(["status" => "error", "message" => "ID de vehiculo no proporcionado."]);
-    exit;
-}
-
-// desenctriptamos el id
-$id = desencriptar($idEncriptado);
-
-// Validamos que el id exista
-if (empty($id)) {
     echo json_encode(["status" => "error", "message" => "ID de usuario no proporcionado."]);
     exit;
 }
 
-// Evitamos que el administrador se elimine a si mismo
+$id = desencriptar($idEncriptado);
+
+if (empty($id)) {
+    echo json_encode(["status" => "error", "message" => "ID de usuario inválido."]);
+    exit;
+}
+
+// Evitar que el administrador se dé de baja a sí mismo
 if ($id == $_SESSION['usuario_id']) {
-    echo json_encode(["status" => "error", "message" => "No podés eliminar tu propio usuario."]);
+    echo json_encode(["status" => "error", "message" => "No podés dar de baja tu propio usuario."]);
     exit;
 }
 
 try {
-    // Iniciamos una transaccion para eliminar en cascada de manera segura
-    $con->beginTransaction();
+    // Verificar si el usuario existe
+    $stmtUser = $con->prepare("SELECT id, usuario FROM Usuarios WHERE id = :id");
+    $stmtUser->execute([':id' => $id]);
+    $usuario = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-    // Eliminamos de Gasta (relacionado con Limpieza)
-    $stmt = $con->prepare("DELETE FROM Gasta WHERE idLimpieza = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Limpieza
-    $stmt = $con->prepare("DELETE FROM Limpieza WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Sanciona (como sancionado o sancionador)
-    $stmt = $con->prepare("DELETE FROM Sanciona WHERE idUsuario = :id OR idAdministrador = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de AumentosDeSueldo (como beneficiado o administrador)
-    $stmt = $con->prepare("DELETE FROM AumentosDeSueldo WHERE idUsuario = :id OR idAdministrador = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Ventas (vendedor/funcionario)
-    $stmt = $con->prepare("DELETE FROM Ventas WHERE idFuncionario = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Transacciones (funcionario)
-    $stmt = $con->prepare("DELETE FROM Transacciones WHERE idFuncionario = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Vendedor
-    $stmt = $con->prepare("DELETE FROM Vendedor WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Administrador
-    $stmt = $con->prepare("DELETE FROM Administrador WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Funcionario
-    $stmt = $con->prepare("DELETE FROM Funcionario WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de RegistroMarca
-    $stmt = $con->prepare("DELETE FROM RegistroMarca WHERE idUsuario = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de Baja
-    $stmt = $con->prepare("DELETE FROM Baja WHERE idUsuario = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Eliminamos de la tabla principal Usuarios
-    $stmt = $con->prepare("DELETE FROM Usuarios WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-
-    // Verificamos si se elimino el registro
-    if ($stmt->rowCount() > 0) {
-        $con->commit();
-        echo json_encode(["status" => "success", "message" => "Usuario eliminado correctamente."]);
-    } else {
-        $con->rollBack();
-        echo json_encode(["status" => "error", "message" => "No se encontro el usuario."]);
+    if (!$usuario) {
+        echo json_encode(["status" => "error", "message" => "El usuario no existe."]);
+        exit;
     }
+
+    // Verificar si ya fue dado de baja previamente
+    $stmtCheckBaja = $con->prepare("SELECT id FROM Baja WHERE idUsuario = :id");
+    $stmtCheckBaja->execute([':id' => $id]);
+    if ($stmtCheckBaja->fetch()) {
+        echo json_encode(["status" => "error", "message" => "Este usuario ya se encuentra dado de baja."]);
+        exit;
+    }
+
+    // Registrar la baja
+    $stmtBaja = $con->prepare("INSERT INTO Baja (idUsuario, tipo, fecha) VALUES (:idUsuario, :tipo, CURDATE())");
+    $stmtBaja->execute([
+        ':idUsuario' => $id,
+        ':tipo' => !empty($tipoBaja) ? $tipoBaja : 'Baja general'
+    ]);
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "El usuario '{$usuario['usuario']}' fue dado de baja correctamente."
+    ]);
 
 } catch (PDOException $e) {
-    if ($con->inTransaction()) {
-        $con->rollBack();
-    }
-    echo json_encode(["status" => "error", "message" => "Error al eliminar el usuario: " . $e->getMessage()]);
+    echo json_encode(["status" => "error", "message" => "Error al registrar la baja: " . $e->getMessage()]);
 }

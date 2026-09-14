@@ -9,4 +9,14 @@
 //   DB_PASS=
 //   CLAVE=  
 
-return parse_ini_file(__DIR__ . '/../../.env');
+
+
+return [
+    'DB_HOST' => $_SERVER['DB_HOST'],
+    'DB_NAME' => $_SERVER['DB_NAME'],
+    'DB_USER' => $_SERVER['DB_USER'],
+    'DB_PASS' => $_SERVER['DB_PASS'],
+    'CLAVE'   => $_SERVER['CLAVE'],
+];
+
+
