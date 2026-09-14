@@ -6,7 +6,7 @@ buscar vehiculos con filtros
 
 <!-- crear un usuario  -->
 editarlo
-a un administrador darle de baja - la información de dicho usuario debe quedar guardada y se guarda info de la baja
+<!--a un administrador darle de baja - la información de dicho usuario debe quedar guardada y se guarda info de la baja-->
 
 crear una sucursal
 editarla 

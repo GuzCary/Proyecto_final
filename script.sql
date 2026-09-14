@@ -7,10 +7,12 @@ CREATE DATABASE proyecto_final;
 
 USE proyecto_final;
 
-CREATE USER IF NOT EXISTS 'webcore'@'localhost' IDENTIFIED BY '1234';
-ALTER USER 'webcore'@'localhost' IDENTIFIED BY '1234';
-GRANT ALL PRIVILEGES ON proyecto_final.* TO 'webcore'@'localhost';
-FLUSH PRIVILEGES;
+
+DROP USER IF EXISTS 'usr_publico'@'localhost';
+DROP USER IF EXISTS 'usr_gestion'@'localhost';
+
+CREATE USER 'usr_publico'@'localhost' IDENTIFIED BY 'Publico1234!';
+CREATE USER 'usr_gestion'@'localhost' IDENTIFIED BY 'Gestion1234!';
 
 
 
@@ -246,3 +248,24 @@ INSERT INTO Vendedor (id) VALUES (2);
 
 -- El usuario limpieza solo se registra en su tabla
 INSERT INTO Limpieza (id) VALUES (3);
+
+-- Permisos
+
+GRANT SELECT ON proyecto_final.Vehiculo TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Categoria TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Tiene TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Sucursal TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Ventas TO 'usr_publico'@'localhost';
+
+GRANT SELECT ON proyecto_final.Usuarios TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Baja TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Administrador TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Vendedor TO 'usr_publico'@'localhost';
+GRANT SELECT ON proyecto_final.Limpieza TO 'usr_publico'@'localhost';
+
+GRANT INSERT ON proyecto_final.RegistroMarca TO 'usr_publico'@'localhost';
+
+-- 2. Permisos para usr_gestion (CRUD completo del sistema interno)
+GRANT SELECT, INSERT, UPDATE, DELETE ON proyecto_final.* TO 'usr_gestion'@'localhost';
+
+FLUSH PRIVILEGES;
