@@ -15,7 +15,11 @@ CREATE USER 'usr_publico'@'localhost' IDENTIFIED BY 'Publico1234!';
 CREATE USER 'usr_gestion'@'localhost' IDENTIFIED BY 'Gestion1234!';
 
 
-
+-- tabla que maneja limites de login
+CREATE TABLE intentos_login (
+    ip VARCHAR(45),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Tabla que almacena las diferentes sucursales de la empresa
 CREATE TABLE Sucursal (
@@ -264,6 +268,8 @@ GRANT SELECT ON proyecto_final.Vendedor TO 'usr_publico'@'localhost';
 GRANT SELECT ON proyecto_final.Limpieza TO 'usr_publico'@'localhost';
 
 GRANT INSERT ON proyecto_final.RegistroMarca TO 'usr_publico'@'localhost';
+
+GRANT SELECT,INSERT,DELETE ON proyecto_final.intentos_login TO 'usr_publico'@'localhost';
 
 -- 2. Permisos para usr_gestion (CRUD completo del sistema interno)
 GRANT SELECT, INSERT, UPDATE, DELETE ON proyecto_final.* TO 'usr_gestion'@'localhost';
