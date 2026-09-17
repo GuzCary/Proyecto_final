@@ -98,8 +98,7 @@ try {
                 "rol" => $rol
             ]);
         } else {
-            // si el inicio no funciono registramos la falla
-            registrarFallo($con);
+          
 
             // si el rol de Usuarios no coincide con ninguna tabla secundaria damos error
             echo json_encode([
@@ -109,6 +108,9 @@ try {
         }
 
     } else {
+
+      // si el inicio no funciono registramos la falla
+            registrarFallo($con);
         // si las credenciales no existen o la contraseña no coincide devolvemos error
         echo json_encode(["status" => "error", "message" => "Usuario o contraseña incorrectos."]);
     }
