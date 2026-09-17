@@ -9,24 +9,18 @@ session_start();
 // establecemos el protocolo en JSON
 header("Content-Type: application/json; charset=UTF-8");
 
-// comprobamos que el usuario no tenga un bloqueo temporal
-if (isset($_SESSION['bloqueado_hasta']) && time() < $_SESSION['bloqueado_hasta']) {
-
-    $segundosRestantes = $_SESSION['bloqueado_hasta'] - time();
-
-    echo json_encode([
-        "status" => "error", 
-        "message" => "Muchos intentos fallidos. Espera {$segundosRestantes} segundos."
-    ]);
-    exit;
-}
-
-
-
-
 // incluimos la conexion a la base de datos y las funciones de sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/sanitizar.php';
+
+// revisamos si esta bloqueado
+if (estaBloqueado($con)) {
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Demasiados intentos fallidos. Has sido bloqueado por 1 minuto."
+    ]);
+    exit;
+}
 
 // Recibimos los datos enviados por POST
 $usuarioInput = sanitizar($_POST['usuario'] ?? '');
@@ -90,8 +84,8 @@ try {
 
         // si todo sale bien iniciamos la sesion
         if ($verificado) {
-            //limpiamos las variables de bloqueo
-            unset($_SESSION['intentos_fallidos'], $_SESSION['bloqueado_hasta']);
+            // si se verifico eliminamos los intentos
+            limpiarFallos($con);
 
             $_SESSION['usuario_id'] = $userId;
             $_SESSION['usuario_nombre'] = $usuario['usuario'];
@@ -103,6 +97,9 @@ try {
                 "rol" => $rol
             ]);
         } else {
+            // si el inicio no funciono registramos la falla
+            registrarFallo($con);
+
             // si el rol de Usuarios no coincide con ninguna tabla secundaria damos error
             echo json_encode([
                 "status" => "error",
@@ -111,35 +108,10 @@ try {
         }
 
     } else {
-       
-
-        // registramos el fallo 
-
-        $_SESSION['intentos_fallidos'] = ($_SESSION['intentos_fallidos'] ?? 0) + 1;
-
-        if ($_SESSION['intentos_fallidos'] >= 5) {
-
-            $_SESSION['bloqueado_hasta'] = time() + 60; // Bloquea por 60 segundos
-
-            unset($_SESSION['intentos_fallidos']);
-            echo json_encode([
-                "status" => "error", 
-                "message" => "Has superado los 5 intentos. Bloqueado por 1 minuto."
-            ]);
-            exit;
-        }
-
-
-        // si las credenciales no existen o la contraseña no coincide, y no se llegaron a los 5 intentos, devolvemos error
+        // si las credenciales no existen o la contraseña no coincide devolvemos error
         echo json_encode(["status" => "error", "message" => "Usuario o contraseña incorrectos."]);
-
-
-
-
     }
 
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => "Error de servidor: " . $e->getMessage()]);
 }
-
-
