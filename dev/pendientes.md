@@ -41,3 +41,7 @@ agregar usuarios por funcionalidad
 
 eliminmar usuario root, o poner contraseña
 
+<!--revisar tema de que usuario usa que -->
+
+
+
