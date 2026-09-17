@@ -12,6 +12,7 @@ header("Content-Type: application/json; charset=UTF-8");
 // incluimos la conexion a la base de datos y las funciones de sanitizacion
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/sanitizar.php';
+require_once __DIR__ . '/intentos.php';
 
 // revisamos si esta bloqueado
 if (estaBloqueado($con)) {
