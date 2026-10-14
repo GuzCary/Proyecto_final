@@ -24,8 +24,8 @@ if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_rol'] !== 'limp' && $
 }
 
 $idEncriptado = $_POST['id_encriptado'] ?? '';
-$nombre = sanitizar($_POST['nombre']);
-$cantidad = validarEntero($_POST['cantidad']);
+$nombre = sanitizar($_POST['nombre'] ?? '');
+$cantidad = validarEntero($_POST['cantidad'] ?? null);
 
 try {
     if (empty($idEncriptado)) {
@@ -79,6 +79,7 @@ try {
         exit;
     }
 
+
     // Calculamos el nuevo stock
     $nuevoStock = $producto['stock'] + $cantidad;
 
@@ -90,6 +91,20 @@ try {
         ]);
         exit;
     }
+
+    
+    if ($cantidad < 0 && $_SESSION['usuario_rol'] === 'limp') {
+        $idLimpieza = $_SESSION['usuario_id'];
+        $unidadesGastadas = abs($cantidad);
+
+        $stmtGasto = $con->prepare("INSERT INTO Gasta (idLimpieza, idProducto, cantidad) VALUES (:idLimpieza, :idProducto, :cantidad)");
+        $stmtGasto->execute([
+            ':idLimpieza' => $idLimpieza,
+            ':idProducto' => $id,
+            ':cantidad'   => $unidadesGastadas
+        ]);
+    }
+
 
     // Actualizamos el stock en la base de datos
     $stmtUpdate = $con->prepare("UPDATE Productos SET stock = :nuevoStock WHERE id = :id");
@@ -105,7 +120,6 @@ try {
         "nuevo_stock" => $nuevoStock
     ]);
     exit;
-
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => "Error en la base de datos: " . $e->getMessage()]);
     exit;
