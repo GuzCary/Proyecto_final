@@ -8,22 +8,43 @@
 </head>
 <body>
 
-   
     <header class="header">
         <div class="header-logo">
             <h1>Automotora</h1>
         </div>
-   
     </header>
 
-    
     <main class="main-container">
-        
-        <section id="contenedor-vehiculos" class="vehiculos-grid">
 
-          
-                
+        <!-- Barra de Búsqueda y Filtros -->
+        <section class="card-filtros">
+            <div class="filtros-grid">
+                <div class="filtro-campo">
+                    <label for="filtro-busqueda">Buscar</label>
+                    <input type="text" id="filtro-busqueda" placeholder="Marca o modelo..." autocomplete="off">
+                </div>
+
+                <div class="filtro-campo">
+                    <label for="filtro-categoria">Categoría</label>
+                    <select id="filtro-categoria">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+
+                <div class="filtro-campo">
+                    <label for="filtro-precio">Precio Máximo ($)</label>
+                    <input type="number" id="filtro-precio" placeholder="Ej: 20000" min="0" step="100">
+                </div>
+
+                <div class="filtro-acciones">
+                    <button id="btn-buscar" class="btn-primary">Filtrar</button>
+                    <button id="btn-limpiar" class="btn-secondary">Limpiar</button>
+                </div>
+            </div>
         </section>
+
+        <!-- Listado de vehículos -->
+        <section id="contenedor-vehiculos" class="vehiculos-grid"></section>
     </main>
 
     <script src="script.js"></script>
