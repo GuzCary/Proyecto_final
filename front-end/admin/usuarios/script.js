@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const form = document.getElementById('form-usuario');
+const idInput = document.getElementById('id_encriptado');
+const usuarioInput = document.getElementById('usuario');
+const contraseniaInput = document.getElementById('contrasenia');
+const rolInput = document.getElementById('rol');
+const formTitulo = document.getElementById('form-titulo');
+const btnGuardar = document.getElementById('btn-guardar');
+const btnCancelar = document.getElementById('btn-cancelar');
+const textoPass = document.getElementById('texto-pass');
 const contenedor = document.getElementById('contenedor-usuarios');
 const mensaje = document.getElementById('mensaje');
 
@@ -29,7 +37,10 @@ async function cargarUsuarios() {
                     <strong>${u.usuario}</strong> [Rol: ${u.rol}]
                     <br><small>Fecha de alta: ${u.fechaDeContrato || 'N/A'}</small>
                 </div>
-                <button class="btn-danger" onclick="eliminar('${u.id}')">Eliminar</button>
+                <div class="item-actions">
+                    <button class="btn-edit" onclick="editar('${u.id}', '${u.usuario}', '${u.rol}')">Editar</button>
+                    <button class="btn-danger" onclick="eliminar('${u.id}')">Dar de baja</button>
+                </div>
             `;
             contenedor.appendChild(div);
         });
@@ -41,30 +52,75 @@ async function cargarUsuarios() {
 function configurarFormulario() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('../../../backend/usuarios/agregar_usuario.php', {
+
+        // Si hay id_encriptado enviamos a modificar, si no a agregar
+        const url = idInput.value
+            ? '../../../backend/usuarios/modificar_usuario.php'
+            : '../../../backend/usuarios/agregar_usuario.php';
+
+        const res = await fetch(url, {
             method: 'POST',
             body: new FormData(form)
         });
         const data = await res.json();
         mostrarMensaje(data.status, data.message);
+
         if (data.status === 'success') {
-            form.reset();
+            limpiar();
             cargarUsuarios();
         }
     });
+
+    btnCancelar.addEventListener('click', limpiar);
+}
+
+function editar(id, usuario, rol) {
+    idInput.value = id;
+    usuarioInput.value = usuario;
+    rolInput.value = rol;
+
+    // Al editar la contraseña pasa a ser opcional
+    contraseniaInput.required = false;
+    contraseniaInput.value = '';
+    textoPass.textContent = '(dejar en blanco para no cambiar)';
+
+    formTitulo.textContent = 'Editar Usuario';
+    btnGuardar.textContent = 'Guardar Cambios';
+    btnCancelar.style.display = 'inline-block';
+    usuarioInput.focus();
+}
+
+function limpiar() {
+    idInput.value = '';
+    form.reset();
+    contraseniaInput.required = true;
+    textoPass.textContent = '(obligatoria)';
+    formTitulo.textContent = 'Agregar Usuario';
+    btnGuardar.textContent = 'Registrar';
+    btnCancelar.style.display = 'none';
 }
 
 async function eliminar(id) {
-    if (!confirm('¿Deseas eliminar este usuario?')) return;
+    // Pedimos el motivo real de la baja para guardarlo en la base de datos
+    const motivo = prompt('Ingresa el motivo de la baja (ej: Renuncia, Despido, Fin de contrato):');
+    if (!motivo || motivo.trim() === '') {
+        return;
+    }
+
     const fd = new FormData();
     fd.append('id', id);
+    fd.append('tipo', motivo.trim());
+
     const res = await fetch('../../../backend/usuarios/eliminar_usuario.php', {
         method: 'POST',
         body: fd
     });
     const data = await res.json();
     mostrarMensaje(data.status, data.message);
-    if (data.status === 'success') cargarUsuarios();
+
+    if (data.status === 'success') {
+        cargarUsuarios();
+    }
 }
 
 function mostrarMensaje(tipo, texto) {
