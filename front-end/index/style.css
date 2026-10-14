@@ -1,3 +1,12 @@
+:root {
+    --color-fondo: #f4f4f4;
+    --color-card: #ffffff;
+    --color-texto: #222222;
+    --color-primario: #333333;
+    --color-borde: #cccccc;
+    --color-item: #fafafa;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,8 +14,8 @@
 }
 
 body {
-    background-color: #f4f4f4;
-    color: #222;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
     font-family: sans-serif;
 }
 
@@ -14,7 +23,7 @@ body {
     display: flex;
     padding: 15px 20px;
     background-color: #ddd;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--color-borde);
 }
 
 .main-container {
@@ -24,6 +33,77 @@ body {
     margin: 0 auto;
 }
 
+/* Barra de Filtros y Búsqueda */
+.card-filtros {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+@media (min-width: 768px) {
+    .filtros-grid {
+        grid-template-columns: 2fr 1.5fr 1.5fr auto;
+    }
+}
+
+.filtro-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filtro-campo label {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.filtro-campo input,
+.filtro-campo select {
+    padding: 8px;
+    border: 1px solid var(--color-borde);
+    font-size: 14px;
+}
+
+.filtro-acciones {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--color-primario);
+    color: var(--color-card);
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-secondary {
+    background: #888;
+    color: var(--color-card);
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    background: #555;
+}
+
+.btn-secondary:hover {
+    background: #666;
+}
+
+/* Grilla y Tarjetas de Vehículos */
 .vehiculos-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -44,8 +124,8 @@ body {
 }
 
 .vehiculo-card {
-    background: #fff;
-    border: 1px solid #bbb;
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
     padding: 15px;
     display: flex;
     flex-direction: column;
@@ -67,7 +147,7 @@ body {
     height: 160px;
     width: auto;
     object-fit: cover;
-    border: 1px solid #eee;
+    border: 1px solid var(--color-borde);
     flex-shrink: 0;
 }
 
@@ -95,9 +175,9 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 6px;
     font-size: 13px;
-    background: #fafafa;
+    background: var(--color-item);
     padding: 10px;
-    border: 1px solid #eee;
+    border: 1px solid var(--color-borde);
     min-width: 0;
     word-break: break-word;
 }
@@ -106,7 +186,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-borde);
     padding-top: 10px;
     margin-top: auto;
 }
