@@ -89,3 +89,26 @@ body {
     font-size: 14px;
     text-align: center;
 }
+
+.login-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid #ccc;
+    padding-top: 12px;
+    font-size: 13px;
+}
+
+.login-footer a {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+.login-footer span {
+    color: #999;
+}
