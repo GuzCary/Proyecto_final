@@ -72,6 +72,16 @@ body {
     gap: 10px;
 }
 
+.aviso-confidencialidad {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 10px;
+    font-size: 13px;
+    line-height: 1.4;
+    border-radius: 2px;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: 1fr;
