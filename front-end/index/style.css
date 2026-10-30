@@ -17,29 +17,13 @@ body {
     background-color: var(--color-fondo);
     color: var(--color-texto);
     font-family: sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 .header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 15px 20px;
     background-color: #ddd;
     border-bottom: 1px solid var(--color-borde);
-}
-
-.header-nav .btn-link {
-    color: var(--color-primario);
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.header-nav .btn-link:hover {
-    text-decoration: underline;
 }
 
 .main-container {
@@ -47,7 +31,6 @@ body {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    flex: 1;
 }
 
 /* Barra de Filtros y Búsqueda */
@@ -206,53 +189,35 @@ body {
     border-top: 1px solid var(--color-borde);
     padding-top: 10px;
     margin-top: auto;
-    gap: 8px;
-}
-
-/* Botón de WhatsApp rústico y simple */
-.btn-whatsapp {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background-color: #25d366;
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 6px 12px;
-    border: 1px solid #1ebe5d;
-    cursor: pointer;
-}
-
-.btn-whatsapp:hover {
-    background-color: #1ebe5d;
-}
-
-.icono-wsp {
-    width: 15px;
-    height: 15px;
-    fill: currentColor;
-    flex-shrink: 0;
 }
 
 .id {
     display: none;
 }
 
-.footer {
-    background: #ddd;
-    border-top: 1px solid var(--color-borde);
-    padding: 15px 20px;
-    text-align: center;
-    font-size: 13px;
-    color: #444;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-top: 20px;
+.aviso-filtro {
+    display: none;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #d99aa1;
+    padding: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
 }
 
-.footer a {
-    color: #0056b3;
-    text-decoration: underline;
+/* boton de WhatsApp a la derecha del footer de cada tarjeta */
+.btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #25d366;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.btn-whatsapp:hover {
+    background: #1ebe5d;
 }

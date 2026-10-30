@@ -28,8 +28,7 @@ function formatoPlata(n) {
 // carga los empleados activos (sin incluir al admin logueado)
 async function cargarEmpleados() {
     try {
-        const res = await fetch('../../../backend/usuarios/listar_usuarios.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/usuarios/listar_usuarios.php');
         empleados = (data.usuarios || []).filter(u => !u.esYo);
 
         selectEmpleado.innerHTML = '<option value="">Seleccioná un empleado</option>';
@@ -76,8 +75,7 @@ function actualizarVistaPrevia() {
 
 async function cargarAumentos() {
     try {
-        const res = await fetch('../../../backend/aumentos/listar_aumentos.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/aumentos/listar_aumentos.php');
         tabla.innerHTML = '';
 
         if (data.status !== 'success') {
@@ -117,11 +115,10 @@ function configurarFormulario() {
         e.preventDefault();
         if (!confirm(`¿Confirmar el aumento?\n${vistaPrevia.textContent}`)) return;
 
-        const res = await fetch('../../../backend/aumentos/registrar_aumento.php', {
+        const data = await pedirJSON('../../../backend/aumentos/registrar_aumento.php', {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
 
         if (data.status === 'success') {
@@ -144,5 +141,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = decodificar(texto);
-    setTimeout(() => mensaje.style.display = 'none', 5000);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 5000);
 }

@@ -143,3 +143,24 @@ body {
 .link-admin:hover {
     background: #cccccc;
 }
+
+.historial-derecha {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.btn-eliminar-venta {
+    background: #c82333;
+    color: #ffffff;
+    border: none;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-eliminar-venta:hover {
+    background: #a71d2a;
+}

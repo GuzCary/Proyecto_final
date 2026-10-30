@@ -2,7 +2,6 @@
 // backend/categorias/registrar_categoria.php
 // Este archivo permite registrar categorias de vehiculos (admin)
 
-
 // iniciamos la sesion y establecemos la respuesta como JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
@@ -12,7 +11,6 @@ require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/encriptar.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
 
-
 // Si la peticion es POST, verificamos que sea administrador
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -20,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $nombre = sanitizar($_POST['nombre']);
+    $nombre = sanitizar($_POST['nombre'] ?? '');
     $idEncriptado = $_POST['id_encriptado'] ?? '';
 
     // nos fijamos que tenga nombre
@@ -29,14 +27,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // el nombre no puede superar el largo de la columna
+    if (!largoValido($nombre, 100)) {
+        echo json_encode(["status" => "error", "message" => "El nombre no puede superar los 100 caracteres."]);
+        exit;
+    }
+
     try {
-        // si llega un id encriptado, actualizamos la categoria existente
+        $id = 0;
         if (!empty($idEncriptado)) {
-            $id = desencriptar($idEncriptado);
-            if ($id === false || $id === '') {
+            $id = desencriptarId($idEncriptado);
+            if ($id === false) {
                 echo json_encode(["status" => "error", "message" => "ID de categoria invalido."]);
                 exit;
             }
+        }
+
+        // no permitimos dos categorias con el mismo nombre
+        $stmtCheck = $con->prepare("SELECT id FROM Categoria WHERE LOWER(nombre) = LOWER(:nombre) AND id != :id");
+        $stmtCheck->execute([':nombre' => $nombre, ':id' => $id]);
+        if ($stmtCheck->fetch()) {
+            echo json_encode(["status" => "error", "message" => "Ya existe una categoria con ese nombre."]);
+            exit;
+        }
+
+        // si llega un id encriptado, actualizamos la categoria existente
+        if ($id > 0) {
 
             $stmt = $con->prepare("UPDATE Categoria SET nombre = :nombre WHERE id = :id");
             $stmt->execute([':nombre' => $nombre, ':id' => $id]);

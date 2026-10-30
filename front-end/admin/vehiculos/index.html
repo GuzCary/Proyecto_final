@@ -56,22 +56,22 @@
 
                 <div class="form-group">
                     <label for="marca">Marca</label>
-                    <input type="text" id="marca" name="marca" required>
+                    <input type="text" id="marca" name="marca" maxlength="100" required>
                 </div>
 
                 <div class="form-group">
                     <label for="modelo">Modelo</label>
-                    <input type="text" id="modelo" name="modelo" required>
+                    <input type="text" id="modelo" name="modelo" maxlength="100" required>
                 </div>
 
                 <div class="form-group">
                     <label for="precio">Precio ($)</label>
-                    <input type="number" step="0.01" id="precio" name="precio" required>
+                    <input type="number" step="0.01" min="0.01" id="precio" name="precio" required>
                 </div>
 
                 <div class="form-group">
                     <label for="precioMinimo">Precio Mínimo ($)</label>
-                    <input type="number" step="0.01" id="precioMinimo" name="precioMinimo">
+                    <input type="number" step="0.01" min="0" id="precioMinimo" name="precioMinimo">
                 </div>
 
                 <div class="form-group">
@@ -81,52 +81,52 @@
 
                 <div class="form-group">
                     <label for="anio">Año</label>
-                    <input type="number" id="anio" name="anio">
+                    <input type="number" id="anio" name="anio" min="1900" step="1">
                 </div>
 
                 <div class="form-group">
                     <label for="km">Kilómetros</label>
-                    <input type="number" id="km" name="km">
+                    <input type="number" id="km" name="km" min="0" step="1">
                 </div>
 
                 <div class="form-group">
                     <label for="potencia">Potencia (HP)</label>
-                    <input type="number" id="potencia" name="potencia">
+                    <input type="number" id="potencia" name="potencia" min="0" step="1">
                 </div>
 
                 <div class="form-group">
                     <label for="consumo">Consumo (L/100km)</label>
-                    <input type="number" step="0.1" id="consumo" name="consumo">
+                    <input type="number" step="0.1" min="0" max="100" id="consumo" name="consumo">
                 </div>
 
                 <div class="form-group">
                     <label for="patente">Patente anual ($)</label>
-                    <input type="number" step="0.01" id="patente" name="patente">
+                    <input type="number" step="0.01" min="0" id="patente" name="patente">
                 </div>
 
                 <div class="form-group">
                     <label for="seguroSOA">Seguro SOA ($)</label>
-                    <input type="number" step="0.01" id="seguroSOA" name="seguroSOA">
+                    <input type="number" step="0.01" min="0" id="seguroSOA" name="seguroSOA">
                 </div>
 
                 <div class="form-group">
                     <label for="seguroTerceros">Seguro Terceros ($)</label>
-                    <input type="number" step="0.01" id="seguroTerceros" name="seguroTerceros">
+                    <input type="number" step="0.01" min="0" id="seguroTerceros" name="seguroTerceros">
                 </div>
 
                 <div class="form-group">
                     <label for="seguroTotal">Seguro Total ($)</label>
-                    <input type="number" step="0.01" id="seguroTotal" name="seguroTotal">
+                    <input type="number" step="0.01" min="0" id="seguroTotal" name="seguroTotal">
                 </div>
 
                 <div class="form-group full-width">
                     <label for="descripcion">Descripción</label>
-                    <textarea id="descripcion" name="descripcion" rows="2"></textarea>
+                    <textarea id="descripcion" name="descripcion" rows="2" maxlength="255"></textarea>
                 </div>
 
                 <div class="form-group full-width">
                     <label for="enlaceDocOficial">Enlace a Documento Oficial</label>
-                    <input type="text" id="enlaceDocOficial" name="enlaceDocOficial" placeholder="https://...">
+                    <input type="url" id="enlaceDocOficial" name="enlaceDocOficial" maxlength="255" placeholder="https://...">
                 </div>
 
                 <div class="form-group full-width">

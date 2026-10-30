@@ -1,5 +1,5 @@
 <?php
-// backend/usuarios/eliminar_usuario.php 
+// backend/usuarios/eliminar_usuario.php
 // este archivo permite dar de baja a un usuario (admin)
 
 // iniciamos la sesion y establecemos el protocolo en JSON
@@ -23,14 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $idEncriptado = sanitizar($_POST['id'] ?? '');
-$tipoBaja = sanitizar($_POST['tipo'] ?? '' ); 
+$tipoBaja = sanitizar($_POST['tipo'] ?? '' );
+
+if (!largoValido($tipoBaja, 100)) {
+    echo json_encode(["status" => "error", "message" => "El motivo de la baja no puede superar los 100 caracteres."]);
+    exit;
+}
 
 if (empty($idEncriptado)) {
     echo json_encode(["status" => "error", "message" => "ID de usuario no proporcionado."]);
     exit;
 }
 
-$id = desencriptar($idEncriptado);
+$id = desencriptarId($idEncriptado);
 
 if (empty($id)) {
     echo json_encode(["status" => "error", "message" => "ID de usuario inválido."]);

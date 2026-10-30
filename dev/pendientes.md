@@ -19,7 +19,7 @@
 
 <!-- crear un vehiculo -->
 <!-- editarlo -->
-<!--registrarlo como vendido (ahora no deja vender dos veces el mismo)-->
+<!--registrarlo como vendido (no deja vender dos veces el mismo; se puede eliminar la venta durante 1 minuto)-->
 
 <!--a los administradores registrar transacciones (Config > Transacciones de caja)-->
 
@@ -29,16 +29,16 @@
 
 <!--a los funcionarios registrar su licencia de conducir (Config > Licencias de conducir)-->
 
-<!--a los de limpieza registrar sus usos de productos-->
+<!--a los de limpieza registrar sus usos de productos (y editar/eliminar insumos)-->
 
-<!--a los usuarios registrar una marca (ahora guarda fecha ademas de hora)-->
+<!--a los usuarios registrar una marca-->
 
 <!--hacer que no se pase el precio minimo si no es user (listar_vehiculos.php lo quita para el publico)-->
 
 DB:
 <!--agregar usuarios por funcionalidad (usr_publico / usr_gestion)-->
 
-eliminar usuario root, o poner contraseña (comando comentado al final de script.sql, hacerlo a mano)
+eliminar usuario root, o poner contraseña (hacerlo a mano en el servidor MySQL)
 
 <!--revisar tema de que usuario usa que -->
 

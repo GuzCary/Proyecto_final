@@ -27,6 +27,13 @@ if (estaBloqueado($con)) {
 $usuarioInput = sanitizar($_POST['usuario'] ?? '');
 $contraseniaInput = sanitizar($_POST['contrasenia'] ?? '');
 
+// Rechazamos datos absurdamente largos sin consultar la base
+if (strlen($usuarioInput) > 100 || strlen($contraseniaInput) > 255) {
+    registrarFallo($con);
+    echo json_encode(["status" => "error", "message" => "Usuario o contraseña incorrectos."]);
+    exit;
+}
+
 // Validamos que no esten vacios
 if (empty($usuarioInput) || empty($contraseniaInput)) {
     echo json_encode(["status" => "error", "message" => "Por favor, completa todos los campos."]);

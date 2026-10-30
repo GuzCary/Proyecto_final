@@ -18,8 +18,7 @@ let sucursalesGuardadas = [];
 
 async function cargarSucursales() {
     try {
-        const res = await fetch('../../../backend/sucursales/listar_sucursales.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/sucursales/listar_sucursales.php');
         contenedor.innerHTML = '';
 
         if (data.status !== 'success') {
@@ -61,11 +60,10 @@ async function cargarSucursales() {
 function configurarFormulario() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('../../../backend/sucursales/registrar_sucursal.php', {
+        const data = await pedirJSON('../../../backend/sucursales/registrar_sucursal.php', {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
         if (data.status === 'success') {
             limpiar();
@@ -108,11 +106,10 @@ async function eliminar(s) {
 
     const fd = new FormData();
     fd.append('id_encriptado', s.id);
-    const res = await fetch('../../../backend/sucursales/eliminar_sucursal.php', {
+    const data = await pedirJSON('../../../backend/sucursales/eliminar_sucursal.php', {
         method: 'POST',
         body: fd
     });
-    const data = await res.json();
     mostrarMensaje(data.status, data.message);
     if (data.status === 'success') {
         // si justo se estaba editando la sucursal borrada, limpiamos el formulario
@@ -133,5 +130,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = decodificar(texto);
-    setTimeout(() => mensaje.style.display = 'none', 4000);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 4000);
 }

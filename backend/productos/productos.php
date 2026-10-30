@@ -25,13 +25,20 @@ if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_rol'] !== 'limp' && $
 
 $idEncriptado = $_POST['id_encriptado'] ?? '';
 $nombre = sanitizar($_POST['nombre'] ?? '');
-$cantidad = validarEntero($_POST['cantidad'] ?? null);
+// se pueden sumar o restar hasta 100.000 unidades por vez
+$cantidad = validarEnteroRango($_POST['cantidad'] ?? '', -100000, 100000);
 
 try {
+    // ---- Alta de un producto nuevo ----
     if (empty($idEncriptado)) {
         // si no se mando nombre frenamos
         if (empty($nombre)) {
             echo json_encode(["status" => "error", "message" => "El nombre del producto es obligatorio."]);
+            exit;
+        }
+
+        if (!largoValido($nombre, 100)) {
+            echo json_encode(["status" => "error", "message" => "El nombre no puede superar los 100 caracteres."]);
             exit;
         }
 
@@ -55,36 +62,39 @@ try {
         exit;
     }
 
-
-
-    $id = desencriptar($idEncriptado);
-    if ($id === false || $id === '') {
+    // ---- Suma o resta de stock ----
+    $id = desencriptarId($idEncriptado);
+    if ($id === false) {
         echo json_encode(["status" => "error", "message" => "ID de producto inválido."]);
         exit;
     }
 
-    // La cantidad no puede ser nula ni cero
-    if ($cantidad === null || $cantidad === 0) {
-        echo json_encode(["status" => "error", "message" => "Debes indicar una cantidad válida a sumar o restar."]);
+    // La cantidad no puede ser nula, cero ni fuera de rango
+    if ($cantidad === null || $cantidad === false || $cantidad === 0) {
+        echo json_encode(["status" => "error", "message" => "Debes indicar una cantidad válida a sumar o restar (máximo 100.000)."]);
         exit;
     }
 
+    // usamos una transaccion y bloqueamos la fila para que dos personas no pisen el stock
+    $con->beginTransaction();
+
     // Consultamos el stock actual del producto
-    $stmt = $con->prepare("SELECT stock, nombre FROM Productos WHERE id = :id");
+    $stmt = $con->prepare("SELECT stock, nombre FROM Productos WHERE id = :id FOR UPDATE");
     $stmt->execute([':id' => $id]);
     $producto = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$producto) {
+        $con->rollBack();
         echo json_encode(["status" => "error", "message" => "El producto no existe."]);
         exit;
     }
 
-
     // Calculamos el nuevo stock
-    $nuevoStock = $producto['stock'] + $cantidad;
+    $nuevoStock = (int)$producto['stock'] + $cantidad;
 
     // Evitamos que el stock quede en negativo
     if ($nuevoStock < 0) {
+        $con->rollBack();
         echo json_encode([
             "status" => "error",
             "message" => "No hay suficiente stock. Stock actual: " . $producto['stock']
@@ -92,19 +102,15 @@ try {
         exit;
     }
 
-    
+    // si un funcionario de limpieza resta stock, lo registramos como gasto
     if ($cantidad < 0 && $_SESSION['usuario_rol'] === 'limp') {
-        $idLimpieza = $_SESSION['usuario_id'];
-        $unidadesGastadas = abs($cantidad);
-
         $stmtGasto = $con->prepare("INSERT INTO Gasta (idLimpieza, idProducto, cantidad) VALUES (:idLimpieza, :idProducto, :cantidad)");
         $stmtGasto->execute([
-            ':idLimpieza' => $idLimpieza,
+            ':idLimpieza' => $_SESSION['usuario_id'],
             ':idProducto' => $id,
-            ':cantidad'   => $unidadesGastadas
+            ':cantidad'   => abs($cantidad)
         ]);
     }
-
 
     // Actualizamos el stock en la base de datos
     $stmtUpdate = $con->prepare("UPDATE Productos SET stock = :nuevoStock WHERE id = :id");
@@ -112,6 +118,8 @@ try {
         ':nuevoStock' => $nuevoStock,
         ':id' => $id
     ]);
+
+    $con->commit();
 
     echo json_encode([
         "status" => "success",
@@ -121,6 +129,9 @@ try {
     ]);
     exit;
 } catch (PDOException $e) {
+    if ($con->inTransaction()) {
+        $con->rollBack();
+    }
     echo json_encode(["status" => "error", "message" => "Error en la base de datos: " . $e->getMessage()]);
     exit;
 }

@@ -32,7 +32,7 @@ if (empty($idEncriptado)) {
     exit;
 }
 
-$id = desencriptar($idEncriptado);
+$id = desencriptarId($idEncriptado);
 if ($id === false || $id === '') {
     echo json_encode(["status" => "error", "message" => "ID de sucursal invalido."]);
     exit;

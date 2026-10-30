@@ -30,8 +30,7 @@ function hoy() {
 // carga las sucursales en el formulario y en el filtro
 async function cargarSucursales() {
     try {
-        const res = await fetch('../../../backend/sucursales/listar_sucursales.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/sucursales/listar_sucursales.php');
         const sucursales = data.sucursales || [];
 
         selectSucursal.innerHTML = sucursales.length === 0
@@ -59,8 +58,7 @@ async function cargarTransacciones() {
     const query = params.toString() ? '?' + params.toString() : '';
 
     try {
-        const res = await fetch('../../../backend/transacciones/listar_transacciones.php' + query);
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/transacciones/listar_transacciones.php' + query);
         tabla.innerHTML = '';
 
         if (data.status !== 'success') {
@@ -104,11 +102,10 @@ function configurarFormulario() {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('../../../backend/transacciones/registrar_transaccion.php', {
+        const data = await pedirJSON('../../../backend/transacciones/registrar_transaccion.php', {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
 
         if (data.status === 'success') {
@@ -143,5 +140,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = decodificar(texto);
-    setTimeout(() => mensaje.style.display = 'none', 4000);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 4000);
 }

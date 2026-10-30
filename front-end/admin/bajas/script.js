@@ -17,8 +17,7 @@ let bajasGuardadas = [];
 
 async function cargarBajas() {
     try {
-        const res = await fetch('../../../backend/usuarios/listar_bajas.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/usuarios/listar_bajas.php');
 
         if (data.status !== 'success') {
             tabla.innerHTML = `<tr><td colspan="7">Error: ${data.message}</td></tr>`;
@@ -90,11 +89,10 @@ async function reactivar(b) {
     const fd = new FormData();
     fd.append('id', b.id_usuario);
 
-    const res = await fetch('../../../backend/usuarios/reactivar_usuario.php', {
+    const data = await pedirJSON('../../../backend/usuarios/reactivar_usuario.php', {
         method: 'POST',
         body: fd
     });
-    const data = await res.json();
     mostrarMensaje(data.status, data.message);
 
     if (data.status === 'success') {
@@ -113,5 +111,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = decodificar(texto);
-    setTimeout(() => mensaje.style.display = 'none', 4000);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 4000);
 }

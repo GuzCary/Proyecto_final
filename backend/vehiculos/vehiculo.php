@@ -6,10 +6,10 @@
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// incuimos la conexion a la db y las funciones de sanitizacion
+// incluimos la conexion a la db y las funciones compartidas de vehiculos
+// (datos_vehiculo.php incluye encriptacion y sanitizacion)
 require_once __DIR__ . '/../config/conexion.php';
-require_once __DIR__ . '/../seguridad/encriptar.php';
-require_once __DIR__ . '/../seguridad/sanitizar.php';
+require_once __DIR__ . '/datos_vehiculo.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -23,41 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Recibimos los datos del formulario y los verificamos
-// la sucursal llega encriptada desde el select (cargado con listar_sucursales.php)
-$idSucursal = desencriptar($_POST['idSucursal'] ?? '');
-if ($idSucursal === false || $idSucursal === '') {
-    $idSucursal = null;
-}
-$marca = sanitizar($_POST['marca'] ?? null);
-$descripcion = sanitizar($_POST['descripcion'] ?? null);
-$modelo = sanitizar($_POST['modelo'] ?? null);
-$potencia = validarEntero($_POST['potencia'] ?? null);
-$estado = validarEntero($_POST['estado'] ?? null);
-$enlaceDocOficial = sanitizar($_POST['enlaceDocOficial'] ?? null);
-$consumo = validarFloat($_POST['consumo'] ?? null);
-$patente = validarFloat($_POST['patente'] ?? null);
-$seguroSOA = validarFloat($_POST['seguroSOA'] ?? null);
-$seguroTerceros = validarFloat($_POST['seguroTerceros'] ?? null);
-$seguroTotal = validarFloat($_POST['seguroTotal'] ?? null);
-$anio = validarEntero($_POST['anio'] ?? null);
-$km = validarEntero($_POST['km'] ?? null);
-$precioMinimo = validarFloat($_POST['precioMinimo'] ?? null);
-$precio = validarFloat($_POST['precio'] ?? null);
-$categorias = sanitizarArray($_POST['categorias'] ?? []);
-
-// Validamos campos obligatorios
-if (empty($idSucursal) || empty($marca) || empty($modelo) || empty($precio)) {
-    echo json_encode(["status" => "error", "message" => "Completa los campos obligatorios: sucursal, marca, modelo y precio."]);
-    exit;
-}
-
 try {
+    // Recibimos los datos del formulario y los validamos
+    $resultado = leerDatosVehiculo($con);
+    if (isset($resultado['error'])) {
+        echo json_encode(["status" => "error", "message" => $resultado['error']]);
+        exit;
+    }
+
     // iniciamos una transaccion: si falla alguna categoria no queda el vehiculo a medias
     $con->beginTransaction();
 
     // insertamos el vehiculo en la tabla Vehiculo
-    // anio esta asi porque no me lo aceptaba
     $stmt = $con->prepare("INSERT INTO Vehiculo (
         idSucursal, marca, descripcion, modelo, potencia, estado, enlaceDocOficial,
         consumo, patente, seguroSOA, seguroTerceros, seguroTotal, anio, km,
@@ -67,70 +44,19 @@ try {
         :consumo, :patente, :seguroSOA, :seguroTerceros, :seguroTotal, :anio, :km,
         :precioMinimo, :precio
     )");
-
-    $stmt->execute([
-        ':idSucursal' => $idSucursal,
-        ':marca' => $marca,
-        ':descripcion' => $descripcion,
-        ':modelo' => $modelo,
-        ':potencia' => $potencia,
-        ':estado' => $estado,
-        ':enlaceDocOficial' => $enlaceDocOficial,
-        ':consumo' => $consumo,
-        ':patente' => $patente,
-        ':seguroSOA' => $seguroSOA,
-        ':seguroTerceros' => $seguroTerceros,
-        ':seguroTotal' => $seguroTotal,
-        ':anio' => $anio,
-        ':km' => $km,
-        ':precioMinimo' => $precioMinimo,
-        ':precio' => $precio
-    ]);
+    $stmt->execute($resultado['datos']);
 
     // Obtenemos el ID del vehiculo recien insertado
     $idVehiculo = $con->lastInsertId();
 
-    // Si se seleccionaron categorias, las asociamos al vehiculo en "Tiene"
-    if (!empty($categorias) && is_array($categorias)) {
-        $stmtTiene = $con->prepare("INSERT INTO Tiene (idVehiculo, idCategoria) VALUES (:idVehiculo, :idCategoria)");
-
-        foreach ($categorias as $idCategoria) {
-            $stmtTiene->execute([
-                ':idVehiculo' => $idVehiculo,
-                ':idCategoria' => $idCategoria
-            ]);
-        }
-    }
+    // Asociamos las categorias elegidas en "Tiene"
+    guardarCategoriasVehiculo($con, $idVehiculo, $resultado['categorias']);
 
     // confirmamos los datos antes de mover las imagenes al disco
     $con->commit();
 
-    // Si se subieron imagenes, las guardamos con formato
-    if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"])) {
-        $imgDir = __DIR__ . "/../../img/";
-        $cantidad = count($_FILES["files"]["name"]);
-
-        for ($i = 0; $i < $cantidad; $i++) {
-
-            $archivoActual = [
-                'tmp_name' => $_FILES["files"]["tmp_name"][$i],
-                'error'    => $_FILES["files"]["error"][$i]
-            ];
-
-            // validamos la imagen y obtenemos su extension
-            $extension = validarImagen($archivoActual);
-
-           // si hay algun error salteamos esa imagen
-            if ($extension === false) {
-                continue;
-            }
-
-            // si todo sale bien armamos el nombre y guardamos la imagen
-            $numero = $i + 1;
-            $to = $imgDir . $idVehiculo . "_" . $numero . "." . $extension;
-            move_uploaded_file($archivoActual['tmp_name'], $to);
-        }
-    }
+    // Si se subieron imagenes, las guardamos con el formato id_numero.ext
+    guardarImagenesSubidas($idVehiculo, 0);
 
     echo json_encode(["status" => "success", "message" => "Vehiculo agregado correctamente."]);
 

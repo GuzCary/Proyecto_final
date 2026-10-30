@@ -11,6 +11,26 @@ require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/encriptar.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
 
+// Reglas de los datos del usuario:
+// - nombre: 3 a 50 caracteres, solo letras, numeros, punto, guion y guion bajo
+// - contraseña: entre 6 y 72 caracteres (72 es el maximo que usa password_hash)
+// - salario por hora: numero entre 0 y 1.000.000
+function validarDatosUsuario($usuarioInput, $contraseniaInput, $contraseniaObligatoria, $salarioInput) {
+    if (validarNombreUsuario($usuarioInput) === false) {
+        return "El nombre de usuario debe tener entre 3 y 50 caracteres y solo letras, numeros, punto, guion o guion bajo.";
+    }
+    if ($contraseniaInput !== '' || $contraseniaObligatoria) {
+        $largo = strlen($contraseniaInput);
+        if ($largo < 6 || $largo > 72) {
+            return "La contraseña debe tener entre 6 y 72 caracteres.";
+        }
+    }
+    if ($salarioInput !== '' && validarFloatRango($salarioInput, 0, 1000000) === false) {
+        return "El salario por hora tiene que ser un numero positivo.";
+    }
+    return null;
+}
+
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
     echo json_encode(["status" => "error", "message" => "Acceso denegado. Se requiere rol de administrador."]);
@@ -39,14 +59,14 @@ if (empty($idEncriptado) || empty($usuarioInput) || empty($rolInput) || empty($s
 }
 
 // Desencriptamos el id
-$id = desencriptar($idEncriptado);
+$id = desencriptarId($idEncriptado);
 if ($id === false || $id === '') {
     echo json_encode(["status" => "error", "message" => "ID de usuario invalido."]);
     exit;
 }
 
 // Desencriptamos la sucursal
-$idSucursal = desencriptar($sucursalEncriptada);
+$idSucursal = desencriptarId($sucursalEncriptada);
 if ($idSucursal === false || $idSucursal === '') {
     echo json_encode(["status" => "error", "message" => "Sucursal invalida."]);
     exit;
@@ -58,9 +78,10 @@ if (!in_array($rolInput, ['admin', 'user', 'limp'])) {
     exit;
 }
 
-// El salario es opcional (vacio = no se cambia), pero si viene tiene que ser valido
-if ($salarioInput !== '' && ($salario === null || $salario < 0)) {
-    echo json_encode(["status" => "error", "message" => "El salario por hora no es valido."]);
+// Validamos formato y rangos (la contraseña y el salario son opcionales: vacio = no se cambian)
+$errorDatos = validarDatosUsuario($usuarioInput, $contraseniaInput, false, $salarioInput);
+if ($errorDatos !== null) {
+    echo json_encode(["status" => "error", "message" => $errorDatos]);
     exit;
 }
 

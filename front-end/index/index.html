@@ -12,9 +12,6 @@
         <div class="header-logo">
             <h1>Automotora</h1>
         </div>
-        <nav class="header-nav">
-            <a href="../login/login.html" class="btn-link">Acceso Personal</a>
-        </nav>
     </header>
 
     <main class="main-container">
@@ -36,7 +33,7 @@
 
                 <div class="filtro-campo">
                     <label for="filtro-precio">Precio Máximo ($)</label>
-                    <input type="number" id="filtro-precio" placeholder="Ej: 20000" min="0" step="100">
+                    <input type="number" id="filtro-precio" placeholder="Ej: 20000" min="0" step="any" inputmode="decimal">
                 </div>
 
                 <div class="filtro-acciones">
@@ -46,14 +43,11 @@
             </div>
         </section>
 
+        <p id="aviso-filtro" class="aviso-filtro"></p>
+
         <!-- Listado de vehículos -->
         <section id="contenedor-vehiculos" class="vehiculos-grid"></section>
     </main>
-
-    <footer class="footer">
-        <p>&copy; Automotora - Sistema de Gestión e Inventario</p>
-        <p><a href="../privacidad/index.html">Política de Privacidad y Protección de Datos (Ley N° 18.331)</a></p>
-    </footer>
 
     <script src="script.js"></script>
 </body>

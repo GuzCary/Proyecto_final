@@ -17,6 +17,30 @@ function verificarSesion(rolEsperado, siInicioSesion) {
         });
 }
 
+// Hace un fetch y SIEMPRE devuelve un objeto { status, message, ... }.
+// Si el servidor no responde, o responde algo que no es JSON (por ejemplo un error de PHP),
+// devuelve status 'error' con un mensaje entendible en vez de cortar el script en silencio.
+async function pedirJSON(url, opciones = {}) {
+    let respuesta;
+    try {
+        respuesta = await fetch(url, { cache: 'no-store', ...opciones });
+    } catch (e) {
+        return { status: 'error', message: 'No se pudo conectar con el servidor.' };
+    }
+
+    const texto = await respuesta.text();
+    try {
+        return JSON.parse(texto);
+    } catch (e) {
+        // dejamos la respuesta completa en la consola para poder depurar
+        console.error('Respuesta no valida de ' + url + ':\n' + texto);
+        return {
+            status: 'error',
+            message: 'El servidor devolvió una respuesta inesperada (código ' + respuesta.status + '). Revisá la consola o el log de PHP.'
+        };
+    }
+}
+
 // Activa el botón de cerrar sesión si existe en el DOM
 function activarLogout() {
     const btnLogout = document.getElementById('btnLogout');

@@ -36,12 +36,12 @@ if (empty($idEncriptado) || empty($tipo) || $fechaVencimiento === null) {
     exit;
 }
 
-if (mb_strlen($tipo) > 100) {
+if (!largoValido($tipo, 100)) {
     echo json_encode(["status" => "error", "message" => "La categoria no puede superar los 100 caracteres."]);
     exit;
 }
 
-$idUsuario = desencriptar($idEncriptado);
+$idUsuario = desencriptarId($idEncriptado);
 if ($idUsuario === false || $idUsuario === '') {
     echo json_encode(["status" => "error", "message" => "ID de funcionario invalido."]);
     exit;

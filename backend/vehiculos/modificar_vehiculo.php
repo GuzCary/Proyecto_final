@@ -6,10 +6,10 @@
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// incluimos la conexion a la db, las funciones de encriptacion y sanitizacion
+// incluimos la conexion a la db y las funciones compartidas de vehiculos
+// (datos_vehiculo.php incluye encriptacion y sanitizacion)
 require_once __DIR__ . '/../config/conexion.php';
-require_once __DIR__ . '/../seguridad/encriptar.php';
-require_once __DIR__ . '/../seguridad/sanitizar.php';
+require_once __DIR__ . '/datos_vehiculo.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -23,47 +23,32 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// recibimos y desencriptamos el id del vehiclo, no se puede sanitizar
-$idEncriptado = $_POST['id'] ?? '';
-$id = desencriptar($idEncriptado);
-
-// Si no se pudo desencriptar o vino vacio, cortamos
-if (!$id) {
+// recibimos y desencriptamos el id del vehiculo
+$id = desencriptarId($_POST['id'] ?? '');
+if ($id === false) {
     echo json_encode(["status" => "error", "message" => "El identificador del vehiculo no es valido."]);
     exit;
 }
 
-// Recibimos y validamos los datos del formulario
-// la sucursal llega encriptada desde el select (cargado con listar_sucursales.php)
-$idSucursal = desencriptar($_POST['idSucursal'] ?? '');
-if ($idSucursal === false || $idSucursal === '') {
-    $idSucursal = null;
-}
-$marca = sanitizar($_POST['marca'] ?? null);
-$descripcion = sanitizar($_POST['descripcion'] ?? null);
-$modelo = sanitizar($_POST['modelo'] ?? null);
-$potencia = validarEntero($_POST['potencia'] ?? null);
-$estado = validarEntero($_POST['estado'] ?? null);
-$enlaceDocOficial = sanitizar($_POST['enlaceDocOficial'] ?? null);
-$consumo = validarFloat($_POST['consumo'] ?? null);
-$patente = validarFloat($_POST['patente'] ?? null);
-$seguroSOA = validarFloat($_POST['seguroSOA'] ?? null);
-$seguroTerceros = validarFloat($_POST['seguroTerceros'] ?? null);
-$seguroTotal = validarFloat($_POST['seguroTotal'] ?? null);
-$anio = validarEntero($_POST['anio'] ?? null);
-$km = validarEntero($_POST['km'] ?? null);
-$precioMinimo = validarFloat($_POST['precioMinimo'] ?? null);
-$precio = validarFloat($_POST['precio'] ?? null);
-$categorias = sanitizarArray($_POST['categorias'] ?? []);
-
-// Validamos campos obligatorios
-if (empty($idSucursal) || empty($marca) || empty($modelo) || empty($precio)) {
-    echo json_encode(["status" => "error", "message" => "Completa los campos obligatorios: sucursal, marca, modelo y precio."]);
-    exit;
-}
-
 try {
-    // Actualizamos usando el id desencriptado
+    // verificamos que el vehiculo exista
+    $stmtExiste = $con->prepare("SELECT id FROM Vehiculo WHERE id = :id");
+    $stmtExiste->execute([':id' => $id]);
+    if (!$stmtExiste->fetch()) {
+        echo json_encode(["status" => "error", "message" => "El vehiculo no existe."]);
+        exit;
+    }
+
+    // Recibimos los datos del formulario y los validamos
+    $resultado = leerDatosVehiculo($con);
+    if (isset($resultado['error'])) {
+        echo json_encode(["status" => "error", "message" => $resultado['error']]);
+        exit;
+    }
+
+    //iniciamos una transaccion por la seguridad de los datos
+    $con->beginTransaction();
+
     $stmt = $con->prepare("
         UPDATE Vehiculo SET
             idSucursal = :idSucursal,
@@ -84,106 +69,37 @@ try {
             precio = :precio
         WHERE id = :id
     ");
+    $stmt->execute($resultado['datos'] + [':id' => $id]);
 
-    //iniciamos una transaccion por la seguridad de los datos
-    $con->beginTransaction();
-
-    $stmt->execute([
-        ':idSucursal' => $idSucursal,
-        ':marca' => $marca,
-        ':descripcion' => $descripcion,
-        ':modelo' => $modelo,
-        ':potencia' => $potencia,
-        ':estado' => $estado,
-        ':enlaceDocOficial' => $enlaceDocOficial,
-        ':consumo' => $consumo,
-        ':patente' => $patente,
-        ':seguroSOA' => $seguroSOA,
-        ':seguroTerceros' => $seguroTerceros,
-        ':seguroTotal' => $seguroTotal,
-        ':anio' => $anio,
-        ':km' => $km,
-        ':precioMinimo' => $precioMinimo,
-        ':precio' => $precio,
-        ':id' => $id
-    ]);
-
-    // Actualizamos la tabla 'Tiene': borramos las relaciones viejas
-    // (si se desmarcaron todas las categorias el vehiculo queda sin categoria)
-    $stmtDel = $con->prepare("DELETE FROM Tiene WHERE idVehiculo = :idVehiculo");
-    $stmtDel->execute([':idVehiculo' => $id]);
-
-    if (!empty($categorias) && is_array($categorias)) {
-        // Insertamos las nuevas
-        $stmtIns = $con->prepare("INSERT INTO Tiene (idVehiculo, idCategoria) VALUES (:idVehiculo, :idCategoria)");
-        foreach ($categorias as $idCat) {
-            $stmtIns->execute([
-                ':idVehiculo' => $id,
-                ':idCategoria' => $idCat
-            ]);
-        }
-    }
-
-    // --- Manejo de imagenes ---
-    $imgDir = __DIR__ . '/../../img/';
-
-    // eliminamos las imágenes marcadas
-    if (!empty($_POST['eliminarImagenes']) && is_array($_POST['eliminarImagenes'])) {
-        foreach ($_POST['eliminarImagenes'] as $nombre) {
-            // basename evita acceso a otros directorios
-            $ruta = $imgDir . basename($nombre);
-            if (file_exists($ruta)) {
-                unlink($ruta);
-            }
-        }
-    }
-
-    // renumeramos las imagenes
-    $imagenesVehiculo = [];
-    $archivos = scandir($imgDir);
-
-    foreach ($archivos as $archivo) {
-        if (preg_match('/^' . $id . '_(\d+)\.[a-zA-Z]+$/', $archivo)) {
-            $imagenesVehiculo[] = $archivo;
-        }
-    }
-    // ordenamos las imagenes
-    sort($imagenesVehiculo);
-
-    foreach ($imagenesVehiculo as $index => $archivoViejo) {
-        $nuevoNombre = $id . '_' . ($index + 1) . '.' . pathinfo($archivoViejo, PATHINFO_EXTENSION);
-        if ($archivoViejo !== $nuevoNombre) {
-            rename($imgDir . $archivoViejo, $imgDir . $nuevoNombre);
-        }
-    }
-
-    // agregamos las nuevas imagenes subidas verificandolas con validarImagen
-    if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"])) {
-
-        $siguienteNumero = count($imagenesVehiculo);
-        $cantidad = count($_FILES["files"]["name"]);
-
-        for ($i = 0; $i < $cantidad; $i++) {
-            $archivoActual = [
-                'tmp_name' => $_FILES["files"]["tmp_name"][$i],
-                'error'    => $_FILES["files"]["error"][$i]
-            ];
-
-            $extension = validarImagen($archivoActual);
-
-            // Si la imagen no es válida o falló, la salteamos
-            if ($extension === false) {
-                continue;
-            }
-
-            // Incrementamos el contador solo si la imagen es válida (así evitamos huecos)
-            $siguienteNumero++;
-            $to = $imgDir . $id . "_" . $siguienteNumero . "." . $extension;
-            move_uploaded_file($archivoActual['tmp_name'], $to);
-        }
-    }
+    // Reemplazamos las categorias (si se desmarcaron todas, queda sin categoria)
+    guardarCategoriasVehiculo($con, $id, $resultado['categorias']);
 
     $con->commit();
+
+    // --- Manejo de imagenes ---
+
+    // eliminamos las imagenes marcadas, pero SOLO si pertenecen a este vehiculo
+    $imagenesActuales = imagenesDeVehiculo($id);
+    $eliminar = $_POST['eliminarImagenes'] ?? [];
+    if (is_array($eliminar)) {
+        foreach ($eliminar as $nombre) {
+            if (is_string($nombre) && in_array($nombre, $imagenesActuales, true)) {
+                @unlink(DIR_IMAGENES . $nombre);
+            }
+        }
+    }
+
+    // renumeramos las imagenes que quedaron para que no haya huecos (1, 2, 3...)
+    $restantes = imagenesDeVehiculo($id);
+    foreach ($restantes as $index => $archivoViejo) {
+        $nuevoNombre = $id . '_' . ($index + 1) . '.' . pathinfo($archivoViejo, PATHINFO_EXTENSION);
+        if ($archivoViejo !== $nuevoNombre) {
+            rename(DIR_IMAGENES . $archivoViejo, DIR_IMAGENES . $nuevoNombre);
+        }
+    }
+
+    // agregamos las nuevas imagenes a continuacion de las existentes
+    guardarImagenesSubidas($id, count($restantes));
 
     echo json_encode(["status" => "success", "message" => "Vehiculo modificado con exito."]);
 
@@ -191,5 +107,5 @@ try {
     if ($con->inTransaction()) {
         $con->rollBack();
     }
-    echo json_encode(["status" => "error", "message" => "Error: " . $e->getMessage()]);
+    echo json_encode(["status" => "error", "message" => "Error al modificar el vehiculo: " . $e->getMessage()]);
 }

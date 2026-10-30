@@ -44,7 +44,7 @@ try {
     $params = [];
 
     if ($sucursalInput !== '') {
-        $idSucursal = desencriptar($sucursalInput);
+        $idSucursal = desencriptarId($sucursalInput);
         if ($idSucursal === false || $idSucursal === '') {
             echo json_encode(["status" => "error", "message" => "Sucursal invalida."]);
             exit;

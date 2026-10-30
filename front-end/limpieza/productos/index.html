@@ -18,13 +18,17 @@
 
     <main class="main-container">
         <section class="card">
-            <h2>Registrar Insumo</h2>
+            <h2 id="form-titulo">Registrar Insumo</h2>
             <form id="form-producto" class="form-grid">
+                <input type="hidden" id="id_encriptado" name="id_encriptado">
                 <div class="form-group">
                     <label for="nombre">Nombre del Producto</label>
-                    <input type="text" id="nombre" name="nombre" required autocomplete="off">
+                    <input type="text" id="nombre" name="nombre" maxlength="100" required autocomplete="off">
                 </div>
-                <button type="submit" class="btn-primary">Registrar</button>
+                <div class="form-acciones">
+                    <button type="submit" id="btn-guardar" class="btn-primary">Registrar</button>
+                    <button type="button" id="btn-cancelar" class="btn-secondary" style="display: none;">Cancelar</button>
+                </div>
             </form>
             <div id="mensaje" class="mensaje-alerta"></div>
         </section>

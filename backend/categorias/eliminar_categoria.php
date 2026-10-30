@@ -2,7 +2,6 @@
 // backend/categorias/eliminar_categoria.php
 // Este archivo permite eliminar una categoria (admin)
 
-
 // iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
@@ -25,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Recibimos el ID encriptado de la categoria a eliminar
-$idEncriptado = sanitizar($_POST['id_encriptado']);
+$idEncriptado = sanitizar($_POST['id_encriptado'] ?? '');
 
 // nos fijamos que el id exista
 if (empty($idEncriptado)) {
@@ -33,13 +32,16 @@ if (empty($idEncriptado)) {
     exit;
 }
 
-$id = desencriptar($idEncriptado);
+$id = desencriptarId($idEncriptado);
 if ($id === false || $id === '') {
     echo json_encode(["status" => "error", "message" => "ID de categoria invalido."]);
     exit;
 }
 
 try {
+    // usamos una transaccion: o se borra todo o nada
+    $con->beginTransaction();
+
     // Eliminamos primero las relaciones en "Tiene"
     $stmt = $con->prepare("DELETE FROM Tiene WHERE idCategoria = :id");
     $stmt->execute([':id' => $id]);
@@ -50,11 +52,16 @@ try {
 
     // nos fijamos si cambio algo en la db, y si no deciemos error
     if ($stmt->rowCount() > 0) {
+        $con->commit();
         echo json_encode(["status" => "success", "message" => "Categoria eliminada correctamente."]);
     } else {
+        $con->rollBack();
         echo json_encode(["status" => "error", "message" => "No se encontro la categoria."]);
     }
 
 } catch (PDOException $e) {
+    if ($con->inTransaction()) {
+        $con->rollBack();
+    }
     echo json_encode(["status" => "error", "message" => "Error al eliminar la categoria: " . $e->getMessage()]);
 }

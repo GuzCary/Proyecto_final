@@ -27,10 +27,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // recibimos y validamos los datos
 $idSucursalEncriptado = $_POST['id_sucursal'] ?? '';
 $tipo = sanitizar($_POST['tipo'] ?? '');
-$monto = validarFloat($_POST['monto'] ?? null);
+$monto = validarFloatRango($_POST['monto'] ?? '', 0.01, 10000000000);
 $justificacion = sanitizar($_POST['justificacion'] ?? '');
 $fechaInput = $_POST['fecha'] ?? '';
 $fecha = validarFecha($fechaInput);
+
+if ($monto === false) {
+    echo json_encode(["status" => "error", "message" => "El monto tiene que ser un numero mayor a 0."]);
+    exit;
+}
 
 if (empty($idSucursalEncriptado) || empty($tipo) || $monto === null || empty($justificacion)) {
     echo json_encode(["status" => "error", "message" => "Completa todos los campos: sucursal, tipo, monto y justificacion."]);
@@ -48,7 +53,7 @@ if ($monto <= 0) {
     exit;
 }
 
-if (mb_strlen($justificacion) > 255) {
+if (!largoValido($justificacion, 255)) {
     echo json_encode(["status" => "error", "message" => "La justificacion no puede superar los 255 caracteres."]);
     exit;
 }
@@ -66,7 +71,7 @@ if ($fecha > date('Y-m-d')) {
     exit;
 }
 
-$idSucursal = desencriptar($idSucursalEncriptado);
+$idSucursal = desencriptarId($idSucursalEncriptado);
 if ($idSucursal === false || $idSucursal === '') {
     echo json_encode(["status" => "error", "message" => "Sucursal invalida."]);
     exit;

@@ -32,7 +32,7 @@ if (empty($idEncriptado)) {
 }
 
 // Desencriptamos el id
-$id = desencriptar($idEncriptado);
+$id = desencriptarId($idEncriptado);
 if ($id === false || $id === '') {
     echo json_encode(["status" => "error", "message" => "ID de vehiculo invalido."]);
     exit;

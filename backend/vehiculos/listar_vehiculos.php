@@ -14,17 +14,34 @@ require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/encriptar.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
 
-// Recibimos los filtros opcionales enviados por GET
+// Recibimos los filtros opcionales enviados por GET y los validamos
 $busqueda = sanitizar($_GET['busqueda'] ?? '');
-$precioMax = validarFloat($_GET['precio_max'] ?? null);
-$categoriaInput = sanitizar($_GET['categoria'] ?? '');
+$precioMaxInput = $_GET['precio_max'] ?? '';
+$categoriaInput = $_GET['categoria'] ?? '';
 
+// el texto de busqueda no puede ser enorme
+if (!largoValido($busqueda, 100)) {
+    echo json_encode(["status" => "error", "message" => "La busqueda no puede superar los 100 caracteres."]);
+    exit;
+}
+
+// el precio maximo, si viene, tiene que ser un numero positivo (no se aceptan negativos)
+$precioMax = null;
+if ($precioMaxInput !== '') {
+    $precioMax = validarFloatRango($precioMaxInput, 0, 1000000000);
+    if ($precioMax === false) {
+        echo json_encode(["status" => "error", "message" => "El precio maximo tiene que ser un numero positivo."]);
+        exit;
+    }
+}
+
+// la categoria llega encriptada
 $idCategoria = null;
-if (!empty($categoriaInput)) {
-    // Si viene encriptada la desencriptamos, si viene numerica la validamos
-    $idCategoria = desencriptar($categoriaInput);
-    if ($idCategoria === false || $idCategoria === '') {
-        $idCategoria = validarEntero($categoriaInput);
+if ($categoriaInput !== '') {
+    $idCategoria = desencriptarId($categoriaInput);
+    if ($idCategoria === false) {
+        echo json_encode(["status" => "error", "message" => "Categoria invalida."]);
+        exit;
     }
 }
 
@@ -82,6 +99,11 @@ try {
         ");
         $stmtCat->execute([':idVehiculo' => $vehiculo['id']]);
         $vehiculo['categorias'] = $stmtCat->fetchAll(PDO::FETCH_ASSOC);
+        // los ids de las categorias tambien viajan encriptados
+        foreach ($vehiculo['categorias'] as &$cat) {
+            $cat['id'] = encriptar($cat['id']);
+        }
+        unset($cat);
 
         // Buscamos las imagenes del vehiculo con formato id_numero.jpg
         $vehiculo['imagenes'] = [];
@@ -89,11 +111,12 @@ try {
         if (is_dir($imgDir)) {
             $archivos = scandir($imgDir);
             foreach ($archivos as $archivo) {
-                if (preg_match('/^' . $vehiculo['id'] . '_(\d+)\.[a-zA-Z]+$/', $archivo)) {
+                if (preg_match('/^' . (int)$vehiculo['id'] . '_(\d+)\.(jpg|png|webp|gif)$/', $archivo)) {
                     $vehiculo['imagenes'][] = $archivo;
                 }
             }
-            sort($vehiculo['imagenes']);
+            natsort($vehiculo['imagenes']); // orden 1, 2, ..., 10
+            $vehiculo['imagenes'] = array_values($vehiculo['imagenes']);
         }
 
         $vehiculo['id'] = encriptar($vehiculo['id']);

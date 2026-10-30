@@ -13,12 +13,17 @@ try {
     // si la peticion es POST registramos una nueva marca
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        $usuarioInput = sanitizar($_POST['usuario']);
-        $direccionInput = sanitizar($_POST['direccion']);
+        $usuarioInput = sanitizar($_POST['usuario'] ?? '');
+        $direccionInput = sanitizar($_POST['direccion'] ?? '');
 
         // Validamos que no estén vacíos
         if (empty($usuarioInput) || empty($direccionInput)) {
             echo json_encode(["status" => "error", "message" => "Por favor, completa todos los campos."]);
+            exit;
+        }
+
+        if (!largoValido($usuarioInput, 100)) {
+            echo json_encode(["status" => "error", "message" => "El usuario no existe."]);
             exit;
         }
 
@@ -38,14 +43,12 @@ try {
 
         if ($usuario) {
             $userId = $usuario['id'];
-            $fechaActual = date('Y-m-d');
             $horaActual = date('H:i:s');
 
-            // Insertamos la marca con fecha y hora
-            $stmtInsert = $con->prepare("INSERT INTO RegistroMarca (idUsuario, fecha, hora, direccion) VALUES (:idUsuario, :fecha, :hora, :direccion)");
+            // Insertamos la marca
+            $stmtInsert = $con->prepare("INSERT INTO RegistroMarca (idUsuario, hora, direccion) VALUES (:idUsuario, :hora, :direccion)");
             $stmtInsert->execute([
                 ':idUsuario' => $userId,
-                ':fecha' => $fechaActual,
                 ':hora' => $horaActual,
                 ':direccion' => $direccionInput
             ]);

@@ -30,8 +30,7 @@ const nombresRol = { admin: 'Administrador', user: 'Vendedor', limp: 'Limpieza' 
 // Carga las sucursales en el select (los valores son los ids encriptados)
 async function cargarSucursales() {
     try {
-        const res = await fetch('../../../backend/sucursales/listar_sucursales.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/sucursales/listar_sucursales.php');
         sucursalInput.innerHTML = '';
 
         if (data.status !== 'success' || !data.sucursales || data.sucursales.length === 0) {
@@ -52,8 +51,7 @@ async function cargarSucursales() {
 
 async function cargarUsuarios() {
     try {
-        const res = await fetch('../../../backend/usuarios/listar_usuarios.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/usuarios/listar_usuarios.php');
         contenedor.innerHTML = '';
         usuariosGuardados = data.usuarios || [];
 
@@ -100,11 +98,10 @@ function configurarFormulario() {
             ? '../../../backend/usuarios/modificar_usuario.php'
             : '../../../backend/usuarios/agregar_usuario.php';
 
-        const res = await fetch(url, {
+        const data = await pedirJSON(url, {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
 
         if (data.status === 'success') {
@@ -170,11 +167,10 @@ async function eliminar(u) {
     fd.append('id', u.id);
     fd.append('tipo', motivo.trim());
 
-    const res = await fetch('../../../backend/usuarios/eliminar_usuario.php', {
+    const data = await pedirJSON('../../../backend/usuarios/eliminar_usuario.php', {
         method: 'POST',
         body: fd
     });
-    const data = await res.json();
     mostrarMensaje(data.status, data.message);
 
     if (data.status === 'success') {
@@ -194,5 +190,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = texto;
-    setTimeout(() => mensaje.style.display = 'none', 3500);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 3500);
 }

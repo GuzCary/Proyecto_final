@@ -35,7 +35,7 @@ if (empty($nombre)) {
 }
 
 // el nombre no puede superar el largo de la columna
-if (mb_strlen($nombre) > 100) {
+if (!largoValido($nombre, 100)) {
     echo json_encode(["status" => "error", "message" => "El nombre no puede superar los 100 caracteres."]);
     exit;
 }
@@ -44,7 +44,7 @@ try {
     // si llega un id lo desencriptamos
     $id = null;
     if (!empty($idEncriptado)) {
-        $id = desencriptar($idEncriptado);
+        $id = desencriptarId($idEncriptado);
         if ($id === false || $id === '') {
             echo json_encode(["status" => "error", "message" => "ID de sucursal invalido."]);
             exit;

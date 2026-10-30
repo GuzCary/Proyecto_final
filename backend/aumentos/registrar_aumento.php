@@ -29,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $idEncriptado = $_POST['id_usuario'] ?? '';
 $tipo = sanitizar($_POST['tipo'] ?? '');
 $valor = validarFloat($_POST['valor'] ?? null);
+// un monto fijo no puede superar $100.000 por hora (evita errores de tipeo)
+if ($valor !== null && $valor > 100000) {
+    echo json_encode(["status" => "error", "message" => "El valor del aumento es demasiado alto."]);
+    exit;
+}
 
 if (empty($idEncriptado) || empty($tipo) || $valor === null) {
     echo json_encode(["status" => "error", "message" => "Completa todos los campos: empleado, tipo y valor."]);
@@ -50,7 +55,7 @@ if ($tipo === 'Porcentaje' && $valor > 100) {
     exit;
 }
 
-$idUsuario = desencriptar($idEncriptado);
+$idUsuario = desencriptarId($idEncriptado);
 if ($idUsuario === false || $idUsuario === '') {
     echo json_encode(["status" => "error", "message" => "ID de empleado invalido."]);
     exit;

@@ -1,6 +1,35 @@
 <?php
 // backend/config/conexion.php
 
+// --- Manejo de errores ---
+// Los avisos de PHP no se muestran en la respuesta (romperian el JSON y el frontend no
+// podria leerla); quedan en el log de errores del servidor.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
+// Si ocurre un error grave que corta el script (por ejemplo una funcion que no existe),
+// igual respondemos un JSON con el problema en vez de una pagina de error en HTML.
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        if (!headers_sent()) {
+            header("Content-Type: application/json; charset=UTF-8");
+        }
+        echo json_encode([
+            "status" => "error",
+            "message" => "Error interno del servidor: " . $error['message'] . " (" . basename($error['file']) . ":" . $error['line'] . ")"
+        ]);
+    }
+});
+
+// Lo mismo para cualquier excepcion que no haya sido atrapada por un try/catch
+set_exception_handler(function ($e) {
+    if (!headers_sent()) {
+        header("Content-Type: application/json; charset=UTF-8");
+    }
+    echo json_encode(["status" => "error", "message" => "Error interno del servidor: " . $e->getMessage()]);
+});
+
 $env = require __DIR__ . '/env_load.php';
 
 // zona horaria de Uruguay para date(), asi las fechas y horas coinciden con las de la empresa

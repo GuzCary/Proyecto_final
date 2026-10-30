@@ -26,8 +26,7 @@ let funcionarios = [];
 
 async function cargarLicencias() {
     try {
-        const res = await fetch('../../../backend/licencias/listar_licencias.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/licencias/listar_licencias.php');
         contenedor.innerHTML = '';
 
         if (data.status !== 'success') {
@@ -81,11 +80,10 @@ async function cargarLicencias() {
 function configurarFormulario() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('../../../backend/licencias/registrar_licencia.php', {
+        const data = await pedirJSON('../../../backend/licencias/registrar_licencia.php', {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
 
         if (data.status === 'success') {
@@ -134,5 +132,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = decodificar(texto);
-    setTimeout(() => mensaje.style.display = 'none', 4000);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 4000);
 }

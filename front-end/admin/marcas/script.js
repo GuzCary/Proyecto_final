@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function cargarMarcas() {
     const contenedor = document.getElementById('contenedor-marcas');
     try {
-        const res = await fetch('../../../backend/marcas/listar_marcas.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/marcas/listar_marcas.php');
         contenedor.innerHTML = '';
 
         if (!data.marcas || data.marcas.length === 0) {
@@ -22,7 +21,7 @@ async function cargarMarcas() {
             div.classList.add('marca-item');
             div.innerHTML = `
                 <strong>Empleado: ${m.usuario}</strong>
-                <span>Fecha: ${m.fecha || 'Sin fecha'} - Hora: ${m.hora}</span>
+                <span>Hora: ${m.hora}</span>
                 <small>Direccion: ${m.direccion}</small>
             `;
             contenedor.appendChild(div);

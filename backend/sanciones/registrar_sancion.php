@@ -45,7 +45,7 @@ if (!in_array($tipo, $tiposPermitidos)) {
     exit;
 }
 
-if (mb_strlen($motivo) > 255 || mb_strlen($consecuencia) > 255) {
+if (!largoValido($motivo, 255) || !largoValido($consecuencia, 255)) {
     echo json_encode(["status" => "error", "message" => "El motivo y la consecuencia no pueden superar los 255 caracteres."]);
     exit;
 }
@@ -63,7 +63,7 @@ if ($fecha > date('Y-m-d')) {
     exit;
 }
 
-$idUsuario = desencriptar($idEncriptado);
+$idUsuario = desencriptarId($idEncriptado);
 if ($idUsuario === false || $idUsuario === '') {
     echo json_encode(["status" => "error", "message" => "ID de empleado invalido."]);
     exit;

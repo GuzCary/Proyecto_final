@@ -18,8 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // encriptamos los ids antes de enviarlos al frontend
+        // (el id real no se envia, solo el encriptado)
         foreach ($categorias as &$categoria) {
             $categoria['id_encriptado'] = encriptar($categoria['id']);
+            unset($categoria['id']);
         }
         unset($categoria);
 
@@ -32,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     exit;
 }
-
 
 // si llega otro metodo, respondemos error
 echo json_encode(["status" => "error", "message" => "Metodo no permitido."]);

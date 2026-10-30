@@ -26,8 +26,7 @@ function hoy() {
 // carga los empleados activos (sin incluir al admin logueado)
 async function cargarEmpleados() {
     try {
-        const res = await fetch('../../../backend/usuarios/listar_usuarios.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/usuarios/listar_usuarios.php');
         selectEmpleado.innerHTML = '<option value="">Seleccioná un empleado</option>';
 
         (data.usuarios || []).filter(u => !u.esYo).forEach(u => {
@@ -43,8 +42,7 @@ async function cargarEmpleados() {
 
 async function cargarSanciones() {
     try {
-        const res = await fetch('../../../backend/sanciones/listar_sanciones.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/sanciones/listar_sanciones.php');
         tabla.innerHTML = '';
 
         if (data.status !== 'success') {
@@ -84,11 +82,10 @@ function configurarFormulario() {
         const empleado = selectEmpleado.options[selectEmpleado.selectedIndex].text;
         if (!confirm(`¿Registrar la sanción para ${empleado}? Las sanciones no se pueden editar ni borrar.`)) return;
 
-        const res = await fetch('../../../backend/sanciones/registrar_sancion.php', {
+        const data = await pedirJSON('../../../backend/sanciones/registrar_sancion.php', {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
 
         if (data.status === 'success') {
@@ -110,5 +107,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = decodificar(texto);
-    setTimeout(() => mensaje.style.display = 'none', 4000);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 4000);
 }

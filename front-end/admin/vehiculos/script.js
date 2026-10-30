@@ -23,8 +23,7 @@ let vehiculosGuardados = [];
 async function cargarSucursales() {
     const select = document.getElementById('idSucursal');
     try {
-        const res = await fetch('../../../backend/sucursales/listar_sucursales.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/sucursales/listar_sucursales.php');
         select.innerHTML = '';
 
         if (data.status !== 'success' || !data.sucursales || data.sucursales.length === 0) {
@@ -46,13 +45,12 @@ async function cargarSucursales() {
 
 async function cargarCategoriasCheckbox() {
     try {
-        const res = await fetch('../../../backend/categorias/listar_categorias.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/categorias/listar_categorias.php');
         contenedorCategorias.innerHTML = '';
 
         (data.categorias || []).forEach(c => {
             const label = document.createElement('label');
-            label.innerHTML = `<input type="checkbox" name="categorias[]" value="${c.id}"> ${c.nombre}`;
+            label.innerHTML = `<input type="checkbox" name="categorias[]" value="${c.id_encriptado}"> ${c.nombre}`;
             contenedorCategorias.appendChild(label);
         });
     } catch (e) {}
@@ -60,8 +58,7 @@ async function cargarCategoriasCheckbox() {
 
 async function cargarVehiculos() {
     try {
-        const res = await fetch('../../../backend/vehiculos/listar_vehiculos.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/vehiculos/listar_vehiculos.php');
         contenedorVehiculos.innerHTML = '';
         vehiculosGuardados = data.vehiculos || [];
 
@@ -117,7 +114,7 @@ async function cargarVehiculos() {
                     <div><strong>Seguro SOA:</strong> $${v.seguroSOA || 0}</div>
                     <div><strong>Seguro Terceros:</strong> $${v.seguroTerceros || 0}</div>
                     <div><strong>Seguro Total:</strong> $${v.seguroTotal || 0}</div>
-                    <div><strong>Doc. Oficial:</strong> ${v.enlaceDocOficial ? `<a href="${v.enlaceDocOficial}" target="_blank">Ver Enlace</a>` : 'N/A'}</div>
+                    <div><strong>Doc. Oficial:</strong> ${/^https?:\/\//i.test(v.enlaceDocOficial || '') ? `<a href="${v.enlaceDocOficial}" target="_blank" rel="noopener noreferrer">Ver Enlace</a>` : 'N/A'}</div>
                 </div>
 
                 <div class="vehiculo-precios">
@@ -145,11 +142,10 @@ function configurarFormulario() {
             ? '../../../backend/vehiculos/modificar_vehiculo.php'
             : '../../../backend/vehiculos/vehiculo.php';
 
-        const res = await fetch(url, {
+        const data = await pedirJSON(url, {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
 
         if (data.status === 'success') {
@@ -168,8 +164,8 @@ function prepararEdicion(idEncriptado) {
     // Completamos los campos del formulario
     document.getElementById('id').value = v.id;
     document.getElementById('idSucursal').value = v.idSucursal || '';
-    document.getElementById('marca').value = v.marca || '';
-    document.getElementById('modelo').value = v.modelo || '';
+    document.getElementById('marca').value = decodificar(v.marca || '');
+    document.getElementById('modelo').value = decodificar(v.modelo || '');
     document.getElementById('precio').value = v.precio || '';
     document.getElementById('precioMinimo').value = v.precioMinimo || '';
     document.getElementById('estado').value = v.estado !== null ? v.estado : 10;
@@ -181,8 +177,8 @@ function prepararEdicion(idEncriptado) {
     document.getElementById('seguroSOA').value = v.seguroSOA || '';
     document.getElementById('seguroTerceros').value = v.seguroTerceros || '';
     document.getElementById('seguroTotal').value = v.seguroTotal || '';
-    document.getElementById('descripcion').value = v.descripcion || '';
-    document.getElementById('enlaceDocOficial').value = v.enlaceDocOficial || '';
+    document.getElementById('descripcion').value = decodificar(v.descripcion || '');
+    document.getElementById('enlaceDocOficial').value = decodificar(v.enlaceDocOficial || '');
 
     // Checkboxes de categorías
     const checks = document.querySelectorAll('input[name="categorias[]"]');
@@ -227,19 +223,27 @@ async function eliminar(id) {
     if (!confirm('¿Deseas eliminar este vehículo por completo?')) return;
     const fd = new FormData();
     fd.append('id', id);
-    const res = await fetch('../../../backend/vehiculos/eliminar_vehiculo.php', {
+    const data = await pedirJSON('../../../backend/vehiculos/eliminar_vehiculo.php', {
         method: 'POST',
         body: fd
     });
-    const data = await res.json();
     mostrarMensaje(data.status, data.message);
     if (data.status === 'success') cargarVehiculos();
+}
+
+// convierte entidades HTML (&amp; &quot; ...) de vuelta a texto normal
+function decodificar(texto) {
+    const t = document.createElement('textarea');
+    t.innerHTML = texto;
+    return t.value;
 }
 
 function mostrarMensaje(tipo, texto) {
     mensaje.style.display = 'block';
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
-    mensaje.textContent = texto;
-    setTimeout(() => mensaje.style.display = 'none', 2500);
+    mensaje.textContent = decodificar(texto || '');
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 4000);
 }

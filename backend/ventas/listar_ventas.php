@@ -24,7 +24,7 @@ if (!isset($_SESSION['usuario_id']) || ($_SESSION['usuario_rol'] !== 'admin' && 
 
 try {
     // Obtenemos las ventas junto con los datos del vehículo y el nombre del vendedor
-    $sql = "SELECT 
+    $sql = "SELECT
                 v.idVenta,
                 v.fecha,
                 veh.id AS idVehiculo,
@@ -42,9 +42,23 @@ try {
     $stmt->execute();
     $ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Ventas que este usuario registro hace menos de 60 segundos (se pueden eliminar)
+    // y de paso limpiamos de la sesion las que ya vencieron
+    $recientes = $_SESSION['ventas_recientes'] ?? [];
+    foreach ($recientes as $idV => $momento) {
+        if (time() - $momento >= 60) {
+            unset($_SESSION['ventas_recientes'][$idV]);
+        }
+    }
+
     // Encriptamos los IDs antes de enviarlos al frontend
     $resultado = [];
     foreach ($ventas as $fila) {
+        $segundos = 0;
+        if (isset($_SESSION['ventas_recientes'][$fila['idVenta']])) {
+            $segundos = 60 - (time() - $_SESSION['ventas_recientes'][$fila['idVenta']]);
+        }
+
         $resultado[] = [
             "id_venta"    => encriptar($fila['idVenta']),
             "fecha"       => $fila['fecha'],
@@ -52,7 +66,9 @@ try {
             "modelo"      => $fila['modelo'],
             "patente"     => $fila['patente'],
             "precio"      => (float)$fila['precio'],
-            "vendedor"    => $fila['vendedor']
+            "vendedor"    => $fila['vendedor'],
+            // segundos que quedan para poder eliminarla (0 = ya no se puede)
+            "segundosParaEliminar" => max(0, $segundos)
         ];
     }
 

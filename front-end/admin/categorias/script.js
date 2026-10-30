@@ -14,10 +14,11 @@ const formTitulo = document.getElementById('form-titulo');
 const contenedor = document.getElementById('contenedor-categorias');
 const mensaje = document.getElementById('mensaje');
 
+let categoriasGuardadas = [];
+
 async function cargarCategorias() {
     try {
-        const res = await fetch('../../../backend/categorias/listar_categorias.php');
-        const data = await res.json();
+        const data = await pedirJSON('../../../backend/categorias/listar_categorias.php');
         contenedor.innerHTML = '';
 
         if (!data.categorias || data.categorias.length === 0) {
@@ -25,14 +26,15 @@ async function cargarCategorias() {
             return;
         }
 
-        data.categorias.forEach(c => {
+        categoriasGuardadas = data.categorias;
+        data.categorias.forEach((c, indice) => {
             const div = document.createElement('div');
             div.classList.add('item-row');
             div.innerHTML = `
                 <span><strong>${c.nombre}</strong></span>
                 <div class="item-actions">
-                    <button class="btn-edit" onclick="editar('${c.id_encriptado}', '${c.nombre}')">Editar</button>
-                    <button class="btn-danger" onclick="eliminar('${c.id_encriptado}')">Eliminar</button>
+                    <button class="btn-edit" data-accion="editar" data-indice="${indice}">Editar</button>
+                    <button class="btn-danger" data-accion="eliminar" data-indice="${indice}">Eliminar</button>
                 </div>
             `;
             contenedor.appendChild(div);
@@ -45,11 +47,10 @@ async function cargarCategorias() {
 function configurarFormulario() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('../../../backend/categorias/registrar_categoria.php', {
+        const data = await pedirJSON('../../../backend/categorias/registrar_categoria.php', {
             method: 'POST',
             body: new FormData(form)
         });
-        const data = await res.json();
         mostrarMensaje(data.status, data.message);
         if (data.status === 'success') {
             limpiar();
@@ -58,11 +59,21 @@ function configurarFormulario() {
     });
 
     btnCancelar.addEventListener('click', limpiar);
+
+    // un solo listener para los botones de todas las categorias
+    contenedor.addEventListener('click', (e) => {
+        const boton = e.target.closest('button[data-accion]');
+        if (!boton) return;
+        const c = categoriasGuardadas[boton.dataset.indice];
+        if (!c) return;
+        if (boton.dataset.accion === 'editar') editar(c.id_encriptado, c.nombre);
+        if (boton.dataset.accion === 'eliminar') eliminar(c.id_encriptado);
+    });
 }
 
 function editar(id, nombre) {
     idInput.value = id;
-    nombreInput.value = nombre;
+    nombreInput.value = decodificar(nombre);
     formTitulo.textContent = 'Editar Categoría';
     btnCancelar.style.display = 'inline-block';
     nombreInput.focus();
@@ -79,13 +90,19 @@ async function eliminar(id) {
     if (!confirm('¿Deseas eliminar esta categoría?')) return;
     const fd = new FormData();
     fd.append('id_encriptado', id);
-    const res = await fetch('../../../backend/categorias/eliminar_categoria.php', {
+    const data = await pedirJSON('../../../backend/categorias/eliminar_categoria.php', {
         method: 'POST',
         body: fd
     });
-    const data = await res.json();
     mostrarMensaje(data.status, data.message);
     if (data.status === 'success') cargarCategorias();
+}
+
+// convierte entidades HTML (&amp; &quot; ...) de vuelta a texto normal
+function decodificar(texto) {
+    const t = document.createElement('textarea');
+    t.innerHTML = texto;
+    return t.value;
 }
 
 function mostrarMensaje(tipo, texto) {
@@ -93,5 +110,7 @@ function mostrarMensaje(tipo, texto) {
     mensaje.style.background = tipo === 'success' ? '#d4edda' : '#f8d7da';
     mensaje.style.color = tipo === 'success' ? '#155724' : '#721c24';
     mensaje.textContent = texto;
-    setTimeout(() => mensaje.style.display = 'none', 2500);
+    // si habia un mensaje anterior, cancelamos su temporizador para que no oculte este
+    clearTimeout(mensaje.temporizador);
+    mensaje.temporizador = setTimeout(() => mensaje.style.display = 'none', 2500);
 }

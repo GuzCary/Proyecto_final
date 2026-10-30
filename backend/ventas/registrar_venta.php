@@ -30,7 +30,7 @@ if (empty($idVehiculoEncriptado)) {
 }
 
 // Desencriptamos el ID del vehículo
-$idVehiculo = desencriptar($idVehiculoEncriptado);
+$idVehiculo = desencriptarId($idVehiculoEncriptado);
 if ($idVehiculo === false || $idVehiculo === '') {
     echo json_encode(["status" => "error", "message" => "ID de vehículo inválido."]);
     exit;
@@ -69,7 +69,13 @@ try {
         ':idFuncionario' => $idFuncionario
     ]);
 
+    $idVenta = (int)$con->lastInsertId();
     $con->commit();
+
+    // guardamos en la sesion el momento exacto de la venta: durante 60 segundos
+    // el mismo vendedor la puede eliminar (por si se equivoco de vehiculo)
+    // (se usa la sesion porque la tabla Ventas solo guarda la fecha, no la hora)
+    $_SESSION['ventas_recientes'][$idVenta] = time();
 
     echo json_encode([
         "status"  => "success",
