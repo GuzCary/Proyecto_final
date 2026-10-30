@@ -1,3 +1,4 @@
 .env
 /img/*
 !/img/.gitkeep
+script.sql
