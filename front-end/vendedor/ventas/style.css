@@ -164,3 +164,8 @@ body {
 .btn-eliminar-venta:hover {
     background: #a71d2a;
 }
+
+/* el atributo hidden siempre oculta, aunque la clase tenga otro display */
+[hidden] {
+    display: none !important;
+}

@@ -10,26 +10,7 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/encriptar.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
-
-// Reglas de los datos del usuario:
-// - nombre: 3 a 50 caracteres, solo letras, numeros, punto, guion y guion bajo
-// - contraseña: entre 6 y 72 caracteres (72 es el maximo que usa password_hash)
-// - salario por hora: numero entre 0 y 1.000.000
-function validarDatosUsuario($usuarioInput, $contraseniaInput, $contraseniaObligatoria, $salarioInput) {
-    if (validarNombreUsuario($usuarioInput) === false) {
-        return "El nombre de usuario debe tener entre 3 y 50 caracteres y solo letras, numeros, punto, guion o guion bajo.";
-    }
-    if ($contraseniaInput !== '' || $contraseniaObligatoria) {
-        $largo = strlen($contraseniaInput);
-        if ($largo < 6 || $largo > 72) {
-            return "La contraseña debe tener entre 6 y 72 caracteres.";
-        }
-    }
-    if ($salarioInput !== '' && validarFloatRango($salarioInput, 0, 1000000) === false) {
-        return "El salario por hora tiene que ser un numero positivo.";
-    }
-    return null;
-}
+require_once __DIR__ . '/datos_usuario.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -85,6 +66,13 @@ if ($errorDatos !== null) {
     exit;
 }
 
+// Datos laborales (opcionales: si se dejan vacios quedan sin cargar)
+$laborales = leerDatosLaborales();
+if (isset($laborales['error'])) {
+    echo json_encode(["status" => "error", "message" => $laborales['error']]);
+    exit;
+}
+
 // Un administrador no se puede quitar el rol a si mismo (se quedaria sin acceso al panel)
 if ($id == $_SESSION['usuario_id'] && $rolInput !== 'admin') {
     echo json_encode(["status" => "error", "message" => "No podes quitarte el rol de administrador a vos mismo."]);
@@ -134,13 +122,25 @@ try {
     $con->beginTransaction();
 
     // Armamos el UPDATE segun los campos que vinieron
-    $campos = "usuario = :usuario, rol = :rol, idSucursal = :idSucursal";
+    $campos = "usuario = :usuario, rol = :rol, idSucursal = :idSucursal,
+               diasDeLicencia = :diasDeLicencia, diasDeTrabajo = :diasDeTrabajo,
+               horarioDeEntrada = :horarioDeEntrada, horarioDeSalida = :horarioDeSalida";
     $params = [
         ':usuario' => $usuarioInput,
         ':rol' => $rolInput,
         ':idSucursal' => $idSucursal,
+        ':diasDeLicencia' => $laborales['diasDeLicencia'],
+        ':diasDeTrabajo' => $laborales['diasDeTrabajo'],
+        ':horarioDeEntrada' => $laborales['horarioDeEntrada'],
+        ':horarioDeSalida' => $laborales['horarioDeSalida'],
         ':id' => $id
     ];
+
+    // la fecha de contrato solo se cambia si vino una
+    if ($laborales['fechaDeContrato'] !== null) {
+        $campos .= ", fechaDeContrato = :fechaDeContrato";
+        $params[':fechaDeContrato'] = $laborales['fechaDeContrato'];
+    }
 
     // contraseña solo si vino una nueva
     if (!empty($contraseniaInput)) {

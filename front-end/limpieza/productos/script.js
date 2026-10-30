@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     verificarSesion(['limp', 'admin'], (datos) => {
         if (datos.usuario_rol === 'admin') {
             document.getElementById('link-admin').hidden = false;
+            // el historial de gastos solo lo ve el administrador
+            document.getElementById('seccion-gastos').hidden = false;
+            esAdmin = true;
+            configurarFiltrosGastos();
+            cargarGastos();
         }
         activarLogout();
         cargarProductos();
@@ -20,6 +25,8 @@ const contenedor = document.getElementById('contenedor-productos');
 const mensaje = document.getElementById('mensaje');
 
 let productosGuardados = [];
+let gastosGuardados = [];
+let esAdmin = false;
 
 async function cargarProductos() {
     const data = await pedirJSON('../../../backend/productos/listar_productos.php');
@@ -73,6 +80,7 @@ function configurarFormulario() {
         if (data.status === 'success') {
             limpiar();
             cargarProductos();
+            if (esAdmin) cargarGastos();
         }
     });
 
@@ -112,6 +120,7 @@ async function modificarStock(p, input, factor) {
 
     if (data.status === 'success') {
         cargarProductos();
+        if (esAdmin) cargarGastos();
     }
 }
 
@@ -154,7 +163,90 @@ async function eliminar(p, confirmarHistorial = false) {
     if (data.status === 'success') {
         if (idInput.value === p.id) limpiar();
         cargarProductos();
+        if (esAdmin) cargarGastos();
     }
+}
+
+// ---- Historial de gastos (solo admin) ----
+
+const tablaGastos = document.getElementById('tabla-gastos');
+const tablaTotales = document.getElementById('tabla-totales');
+const filtroEmpleado = document.getElementById('filtro-empleado');
+const filtroProducto = document.getElementById('filtro-producto');
+
+async function cargarGastos() {
+    const data = await pedirJSON('../../../backend/productos/listar_gastos.php');
+
+    if (data.status !== 'success') {
+        tablaGastos.innerHTML = `<tr><td colspan="3">Error: ${data.message}</td></tr>`;
+        tablaTotales.innerHTML = '';
+        return;
+    }
+
+    gastosGuardados = data.gastos || [];
+
+    // armamos las opciones de los filtros con los empleados y productos que aparecen
+    llenarFiltro(filtroEmpleado, gastosGuardados.map(g => g.empleado));
+    llenarFiltro(filtroProducto, gastosGuardados.map(g => g.producto));
+
+    mostrarGastos();
+}
+
+// llena un select con valores sin repetir, manteniendo la opcion elegida
+function llenarFiltro(select, valores) {
+    const elegido = select.value;
+    const unicos = [...new Set(valores)].sort();
+    select.innerHTML = '<option value="">Todos</option>';
+    unicos.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.innerHTML = v;
+        select.appendChild(opt);
+    });
+    select.value = unicos.includes(elegido) ? elegido : '';
+}
+
+// dibuja las dos tablas aplicando los filtros (se filtra en el navegador)
+function mostrarGastos() {
+    const empleado = filtroEmpleado.value;
+    const producto = filtroProducto.value;
+
+    const filtrados = gastosGuardados.filter(g =>
+        (empleado === '' || g.empleado === empleado) &&
+        (producto === '' || g.producto === producto)
+    );
+
+    tablaGastos.innerHTML = '';
+    tablaTotales.innerHTML = '';
+
+    if (filtrados.length === 0) {
+        tablaGastos.innerHTML = '<tr><td colspan="3" class="texto-vacio">No hay gastos registrados.</td></tr>';
+        return;
+    }
+
+    // filas del historial y suma por producto
+    const totales = {};
+    filtrados.forEach(g => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${g.empleado}</td>
+            <td>${g.producto}</td>
+            <td class="num">${g.cantidad}</td>
+        `;
+        tablaGastos.appendChild(fila);
+        totales[g.producto] = (totales[g.producto] || 0) + g.cantidad;
+    });
+
+    Object.keys(totales).sort().forEach(nombre => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `<td>${nombre}</td><td class="num">${totales[nombre]}</td>`;
+        tablaTotales.appendChild(fila);
+    });
+}
+
+function configurarFiltrosGastos() {
+    filtroEmpleado.addEventListener('change', mostrarGastos);
+    filtroProducto.addEventListener('change', mostrarGastos);
 }
 
 function decodificar(texto) {

@@ -122,11 +122,20 @@ async function cargarVehiculos() {
                     <span><strong>Mínimo:</strong> $${v.precioMinimo || 'N/A'}</span>
                 </div>
 
-                <div class="vehiculo-card-acciones">
-                    <button class="btn-edit" onclick="prepararEdicion('${v.id}')">Editar</button>
-                    <button class="btn-danger" onclick="eliminar('${v.id}')">Eliminar</button>
-                </div>
+                ${v.vendido == 1
+                    ? `<div class="vehiculo-card-acciones">
+                           <span class="vendido-tag">VENDIDO</span>
+                       </div>`
+                    : `<div class="vehiculo-card-acciones">
+                           <button class="btn-edit" onclick="prepararEdicion('${v.id}')">Editar</button>
+                           <button class="btn-danger" onclick="eliminar('${v.id}')">Eliminar</button>
+                       </div>`}
             `;
+
+            // los vendidos se muestran en blanco y negro y sin opciones (solo para ver)
+            if (v.vendido == 1) {
+                card.classList.add('vendido');
+            }
             contenedorVehiculos.appendChild(card);
         });
     } catch (e) {

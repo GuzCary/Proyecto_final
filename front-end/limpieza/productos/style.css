@@ -194,3 +194,60 @@ body {
     padding: 4px 8px;
     cursor: pointer;
 }
+
+/* ---- historial de gastos (solo admin) ---- */
+.filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filtros .form-group {
+    min-width: 180px;
+}
+
+.filtros select {
+    padding: 6px;
+    border: 1px solid var(--color-borde);
+    font-family: inherit;
+}
+
+.tabla-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabla th,
+.tabla td {
+    border: 1px solid var(--color-borde);
+    padding: 6px 8px;
+    text-align: left;
+}
+
+.tabla th {
+    background: #eeeeee;
+    font-size: 13px;
+}
+
+.tabla tr:nth-child(even) td {
+    background: var(--color-item);
+}
+
+.tabla .num {
+    text-align: right;
+}
+
+.texto-vacio {
+    color: #777777;
+}
+
+/* el atributo hidden siempre oculta, aunque la clase tenga otro display */
+[hidden] {
+    display: none !important;
+}

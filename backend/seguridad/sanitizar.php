@@ -93,6 +93,15 @@ function validarFecha($dato) {
     return $dato;
 }
 
+// valida una hora con formato HH:MM o HH:MM:SS (como la manda un <input type="time">)
+// devuelve la hora en formato HH:MM:SS o null si no es valida
+function validarHora($dato) {
+    if (!is_string($dato) || !preg_match('/^([01][0-9]|2[0-3]):([0-5][0-9])(:([0-5][0-9]))?$/', $dato, $m)) {
+        return null;
+    }
+    return $m[1] . ':' . $m[2] . ':' . (isset($m[4]) ? $m[4] : '00');
+}
+
 // valida un enlace: tiene que ser una URL http o https (evita enlaces "javascript:...")
 // devuelve la URL, '' si vino vacia o false si es invalida
 function validarUrl($dato) {

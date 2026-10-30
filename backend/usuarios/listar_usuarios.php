@@ -21,6 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         // Excluimos a los usuarios que tengan un registro en la tabla Baja
         $sql = "SELECT u.id, u.usuario, u.rol, u.fechaDeContrato, u.salarioPorHora,
+                       u.diasDeLicencia, u.diasDeTrabajo,
+                       TIME_FORMAT(u.horarioDeEntrada, '%H:%i') AS horarioDeEntrada,
+                       TIME_FORMAT(u.horarioDeSalida, '%H:%i') AS horarioDeSalida,
                        u.idSucursal, s.nombre AS sucursal
                 FROM Usuarios u
                 LEFT JOIN Baja b ON u.id = b.idUsuario
@@ -39,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $usuario['id'] = encriptar($usuario['id']);
             $usuario['idSucursal'] = $usuario['idSucursal'] !== null ? encriptar($usuario['idSucursal']) : null;
             $usuario['salarioPorHora'] = $usuario['salarioPorHora'] !== null ? (float)$usuario['salarioPorHora'] : null;
+            $usuario['diasDeLicencia'] = $usuario['diasDeLicencia'] !== null ? (int)$usuario['diasDeLicencia'] : null;
+            $usuario['diasDeTrabajo'] = $usuario['diasDeTrabajo'] !== null ? (int)$usuario['diasDeTrabajo'] : null;
         }
         unset($usuario);
 

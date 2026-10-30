@@ -282,3 +282,18 @@ body {
     padding: 8px;
     font-size: 14px;
 }
+
+/* ---- vehiculos vendidos: solo para ver, en blanco y negro ---- */
+.vehiculo-admin-card.vendido {
+    filter: grayscale(100%);
+}
+
+.vendido-tag {
+    display: inline-block;
+    border: 1px solid #333333;
+    color: #333333;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}

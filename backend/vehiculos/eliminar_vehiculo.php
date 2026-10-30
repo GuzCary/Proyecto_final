@@ -42,13 +42,18 @@ try {
     // Iniciamos la transaccion para seguridad de datos
     $con->beginTransaction();
 
-    // 1. Eliminamos las relaciones en "Tiene" (categorias)
+    // 1. Un vehiculo vendido no se puede eliminar (se perderia el historial de ventas)
+    $stmtVendido = $con->prepare("SELECT idVenta FROM Ventas WHERE idVehiculo = :id");
+    $stmtVendido->execute([':id' => $id]);
+    if ($stmtVendido->fetch()) {
+        $con->rollBack();
+        echo json_encode(["status" => "error", "message" => "No se puede eliminar un vehiculo vendido."]);
+        exit;
+    }
+
+    // 2. Eliminamos las relaciones en "Tiene" (categorias)
     $stmtTiene = $con->prepare("DELETE FROM Tiene WHERE idVehiculo = :id");
     $stmtTiene->execute([':id' => $id]);
-
-    // 2. Eliminamos las ventas asociadas para que MySQL no bloquee el borrado
-    $stmtVentas = $con->prepare("DELETE FROM Ventas WHERE idVehiculo = :id");
-    $stmtVentas->execute([':id' => $id]);
 
     // 3. Eliminamos el vehiculo de la tabla principal
     $stmt = $con->prepare("DELETE FROM Vehiculo WHERE id = :id");
@@ -60,7 +65,7 @@ try {
         if (is_dir($imgDir)) {
             $archivos = scandir($imgDir);
             foreach ($archivos as $archivo) {
-                if (preg_match('/^' . $id . '_(\d+)\.[a-zA-Z]+$/', $archivo)) {
+                if (preg_match('/^' . (int)$id . '_(\d+)\.(jpg|png|webp|gif)$/', $archivo)) {
                     @unlink($imgDir . $archivo);
                 }
             }

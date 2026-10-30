@@ -72,16 +72,6 @@ body {
     gap: 10px;
 }
 
-.aviso-confidencialidad {
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    color: #856404;
-    padding: 10px;
-    font-size: 13px;
-    line-height: 1.4;
-    border-radius: 2px;
-}
-
 .form-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -175,4 +165,23 @@ body {
 .item-actions {
     display: flex;
     gap: 6px;
+}
+
+.datos-laborales {
+    border: 1px solid var(--color-borde);
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.datos-laborales legend {
+    padding: 0 6px;
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    .datos-laborales {
+        grid-template-columns: 1fr 1fr;
+    }
 }

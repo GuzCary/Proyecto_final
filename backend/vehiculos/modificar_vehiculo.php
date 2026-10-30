@@ -39,6 +39,14 @@ try {
         exit;
     }
 
+    // un vehiculo vendido ya no se puede modificar
+    $stmtVendido = $con->prepare("SELECT idVenta FROM Ventas WHERE idVehiculo = :id");
+    $stmtVendido->execute([':id' => $id]);
+    if ($stmtVendido->fetch()) {
+        echo json_encode(["status" => "error", "message" => "No se puede modificar un vehiculo vendido."]);
+        exit;
+    }
+
     // Recibimos los datos del formulario y los validamos
     $resultado = leerDatosVehiculo($con);
     if (isset($resultado['error'])) {

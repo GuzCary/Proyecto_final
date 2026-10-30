@@ -10,26 +10,7 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/encriptar.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
-
-// Reglas de los datos del usuario:
-// - nombre: 3 a 50 caracteres, solo letras, numeros, punto, guion y guion bajo
-// - contraseña: entre 6 y 72 caracteres (72 es el maximo que usa password_hash)
-// - salario por hora: numero entre 0 y 1.000.000
-function validarDatosUsuario($usuarioInput, $contraseniaInput, $contraseniaObligatoria, $salarioInput) {
-    if (validarNombreUsuario($usuarioInput) === false) {
-        return "El nombre de usuario debe tener entre 3 y 50 caracteres y solo letras, numeros, punto, guion o guion bajo.";
-    }
-    if ($contraseniaInput !== '' || $contraseniaObligatoria) {
-        $largo = strlen($contraseniaInput);
-        if ($largo < 6 || $largo > 72) {
-            return "La contraseña debe tener entre 6 y 72 caracteres.";
-        }
-    }
-    if ($salarioInput !== '' && validarFloatRango($salarioInput, 0, 1000000) === false) {
-        return "El salario por hora tiene que ser un numero positivo.";
-    }
-    return null;
-}
+require_once __DIR__ . '/datos_usuario.php';
 
 // Verificamos que el usuario este logueado y sea administrador
 if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
@@ -63,6 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($errorDatos !== null) {
         echo json_encode(["status" => "error", "message" => $errorDatos]);
         exit;
+    }
+
+    // Datos laborales (opcionales)
+    $laborales = leerDatosLaborales();
+    if (isset($laborales['error'])) {
+        echo json_encode(["status" => "error", "message" => $laborales['error']]);
+        exit;
+    }
+    // si no se indica fecha de contrato, se usa la de hoy
+    if ($laborales['fechaDeContrato'] === null) {
+        $laborales['fechaDeContrato'] = date('Y-m-d');
     }
 
     // Desencriptamos la sucursal
@@ -104,8 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             idSucursal, salarioPorHora, usuario, contraseña, diasDeLicencia,
             fechaDeContrato, diasDeTrabajo, horarioDeEntrada, horarioDeSalida, rol
         ) VALUES (
-            :idSucursal, :salario, :usuario, :contrasenia, NULL,
-            :fechaDeContrato, NULL, NULL, NULL, :rol
+            :idSucursal, :salario, :usuario, :contrasenia, :diasDeLicencia,
+            :fechaDeContrato, :diasDeTrabajo, :horarioDeEntrada, :horarioDeSalida, :rol
         )");
 
         $stmtUser->execute([
@@ -113,7 +105,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':salario' => $salario,
             ':usuario' => $usuarioInput,
             ':contrasenia' => $hash,
-            ':fechaDeContrato' => date('Y-m-d'),
+            ':diasDeLicencia' => $laborales['diasDeLicencia'],
+            ':fechaDeContrato' => $laborales['fechaDeContrato'],
+            ':diasDeTrabajo' => $laborales['diasDeTrabajo'],
+            ':horarioDeEntrada' => $laborales['horarioDeEntrada'],
+            ':horarioDeSalida' => $laborales['horarioDeSalida'],
             ':rol' => $rolInput
         ]);
 

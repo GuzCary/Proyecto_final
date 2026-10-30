@@ -19,21 +19,21 @@
         </nav>
         <div class="header-acciones">
             <div class="config-menu">
-                <button type="button" class="config-toggle" aria-haspopup="true" aria-expanded="false">⚙ Config ▾</button>
+                <button type="button" class="config-toggle" aria-haspopup="true" aria-expanded="false">Config</button>
                 <div class="config-dropdown" role="menu">
                     <span class="config-grupo">Empresa</span>
-                    <a href="../sucursales/index.html">📍 Sucursales</a>
-                    <a href="../transacciones/index.html">💵 Transacciones de caja</a>
+                    <a href="../sucursales/index.html">Sucursales</a>
+                    <a href="../transacciones/index.html">Transacciones de caja</a>
                     <hr>
                     <span class="config-grupo">Personal</span>
-                    <a href="../licencias/index.html">🪪 Licencias de conducir</a>
-                    <a href="../sanciones/index.html">⚠️ Sanciones</a>
-                    <a href="../aumentos/index.html">📈 Aumentos de sueldo</a>
-                    <a href="../bajas/index.html">🗂️ Historial de bajas</a>
+                    <a href="../licencias/index.html">Licencias de conducir</a>
+                    <a href="../sanciones/index.html">Sanciones</a>
+                    <a href="../aumentos/index.html">Aumentos de sueldo</a>
+                    <a href="../bajas/index.html">Historial de bajas</a>
                     <hr>
                     <span class="config-grupo">Otros paneles</span>
-                    <a href="../../vendedor/ventas/index.html">🧾 Ventas</a>
-                    <a href="../../limpieza/productos/index.html">🧴 Insumos de limpieza</a>
+                    <a href="../../vendedor/ventas/index.html">Ventas</a>
+                    <a href="../../limpieza/productos/index.html">Insumos de limpieza</a>
                 </div>
             </div>
             <button id="btnLogout" class="btn-logout">Salir</button>
@@ -76,6 +76,35 @@
                     <label for="salarioPorHora">Salario por hora ($) <span id="texto-salario">(opcional)</span></label>
                     <input type="number" id="salarioPorHora" name="salarioPorHora" min="0" max="1000000" step="0.01">
                 </div>
+
+                <fieldset class="datos-laborales">
+                    <legend>Datos laborales <small>(opcionales)</small></legend>
+
+                    <div class="form-group">
+                        <label for="fechaDeContrato">Fecha de contrato</label>
+                        <input type="date" id="fechaDeContrato" name="fechaDeContrato" min="1950-01-01">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="diasDeTrabajo">Días de trabajo por semana</label>
+                        <input type="number" id="diasDeTrabajo" name="diasDeTrabajo" min="1" max="7" step="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horarioDeEntrada">Horario de entrada</label>
+                        <input type="time" id="horarioDeEntrada" name="horarioDeEntrada">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horarioDeSalida">Horario de salida</label>
+                        <input type="time" id="horarioDeSalida" name="horarioDeSalida">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="diasDeLicencia">Días de licencia por año</label>
+                        <input type="number" id="diasDeLicencia" name="diasDeLicencia" min="0" max="365" step="1">
+                    </div>
+                </fieldset>
 
                 <div class="form-acciones">
                     <button type="submit" id="btn-guardar" class="btn-primary">Registrar</button>

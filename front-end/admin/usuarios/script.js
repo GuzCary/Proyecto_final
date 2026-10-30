@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     verificarSesion('admin', () => {
         activarLogout();
+        fechaContratoInput.value = hoy();
         cargarSucursales();
         cargarUsuarios();
         configurarFormulario();
@@ -14,6 +15,11 @@ const contraseniaInput = document.getElementById('contrasenia');
 const rolInput = document.getElementById('rol');
 const sucursalInput = document.getElementById('id_sucursal');
 const salarioInput = document.getElementById('salarioPorHora');
+const fechaContratoInput = document.getElementById('fechaDeContrato');
+const diasTrabajoInput = document.getElementById('diasDeTrabajo');
+const entradaInput = document.getElementById('horarioDeEntrada');
+const salidaInput = document.getElementById('horarioDeSalida');
+const diasLicenciaInput = document.getElementById('diasDeLicencia');
 const formTitulo = document.getElementById('form-titulo');
 const btnGuardar = document.getElementById('btn-guardar');
 const btnCancelar = document.getElementById('btn-cancelar');
@@ -71,11 +77,19 @@ async function cargarUsuarios() {
                 ? '<small>(vos)</small>'
                 : `<button class="btn-danger" data-accion="baja" data-indice="${indice}">Dar de baja</button>`;
 
+            const horario = u.horarioDeEntrada && u.horarioDeSalida
+                ? `${u.horarioDeEntrada} a ${u.horarioDeSalida}`
+                : 'Sin horario';
+            const dias = u.diasDeTrabajo !== null ? `${u.diasDeTrabajo} días/semana` : 'Sin días';
+            const licencia = u.diasDeLicencia !== null ? `${u.diasDeLicencia} días de licencia` : 'Sin licencia cargada';
+
             div.innerHTML = `
                 <div>
                     <strong>${u.usuario}</strong> [${nombresRol[u.rol] || u.rol}]
                     <br><small>Sucursal: ${u.sucursal || 'N/A'} | ${salario}</small>
-                    <br><small>Fecha de alta: ${u.fechaDeContrato || 'N/A'}</small>
+                    <br><small>${horario} | ${dias}</small>
+                    <br><small>${licencia}</small>
+                    <br><small>Contrato: ${u.fechaDeContrato || 'N/A'}</small>
                 </div>
                 <div class="item-actions">
                     <button class="btn-edit" data-accion="editar" data-indice="${indice}">Editar</button>
@@ -131,6 +145,11 @@ function editar(u) {
     rolInput.value = u.rol;
     sucursalInput.value = u.idSucursal || '';
     salarioInput.value = u.salarioPorHora !== null ? u.salarioPorHora : '';
+    fechaContratoInput.value = u.fechaDeContrato || '';
+    diasTrabajoInput.value = u.diasDeTrabajo !== null ? u.diasDeTrabajo : '';
+    entradaInput.value = u.horarioDeEntrada || '';
+    salidaInput.value = u.horarioDeSalida || '';
+    diasLicenciaInput.value = u.diasDeLicencia !== null ? u.diasDeLicencia : '';
 
     // Al editar la contraseña pasa a ser opcional
     contraseniaInput.required = false;
@@ -148,6 +167,8 @@ function editar(u) {
 function limpiar() {
     idInput.value = '';
     form.reset();
+    // al dar de alta, la fecha de contrato viene con la fecha de hoy (se puede cambiar)
+    fechaContratoInput.value = hoy();
     contraseniaInput.required = true;
     textoPass.textContent = '(obligatoria)';
     textoSalario.textContent = '(opcional)';
@@ -176,6 +197,12 @@ async function eliminar(u) {
     if (data.status === 'success') {
         cargarUsuarios();
     }
+}
+
+// fecha de hoy en formato AAAA-MM-DD (hora local, no UTC)
+function hoy() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 // convierte entidades HTML (&amp; &quot; ...) de vuelta a texto normal

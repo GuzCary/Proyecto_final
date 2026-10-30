@@ -47,6 +47,10 @@ if ($categoriaInput !== '') {
 
 try {
     // Armamos la consulta base
+    // los vehiculos vendidos solo los recibe el administrador (para verlos en su panel);
+    // el catalogo publico y el panel de ventas solo reciben los disponibles
+    $esAdmin = isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] === 'admin';
+
     $sql = "
     SELECT
         Vehiculo.*,
@@ -57,6 +61,10 @@ try {
     LEFT JOIN Ventas ON Vehiculo.id = Ventas.idVehiculo
     WHERE 1=1
     ";
+
+    if (!$esAdmin) {
+        $sql .= " AND Ventas.idVenta IS NULL";
+    }
 
     $params = [];
 
@@ -79,7 +87,8 @@ try {
         $params[':idCategoria'] = $idCategoria;
     }
 
-    $sql .= " ORDER BY Vehiculo.id DESC";
+    // primero los disponibles y al final los vendidos
+    $sql .= " ORDER BY vendido ASC, Vehiculo.id DESC";
 
     $stmt = $con->prepare($sql);
     $stmt->execute($params);
