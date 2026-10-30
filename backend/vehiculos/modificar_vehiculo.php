@@ -2,7 +2,6 @@
 // backend/vehiculos/modificar_vehiculo.php
 // Este archivo permite modificar un vehiculo ya existente (admin)
 
-
 // iniciamos la sesion y establecemos el protocolo en JSON
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
@@ -35,23 +34,33 @@ if (!$id) {
 }
 
 // Recibimos y validamos los datos del formulario
-$idSucursal = validarEntero($_POST['idSucursal']);
-$marca = sanitizar($_POST['marca']);
-$descripcion = sanitizar($_POST['descripcion']);
-$modelo = sanitizar($_POST['modelo']);
-$potencia = validarEntero($_POST['potencia']);
-$estado = validarEntero($_POST['estado']);
-$enlaceDocOficial = sanitizar($_POST['enlaceDocOficial']);
-$consumo = validarFloat($_POST['consumo']);
-$patente = validarFloat($_POST['patente']);
-$seguroSOA = validarFloat($_POST['seguroSOA']);
-$seguroTerceros = validarFloat($_POST['seguroTerceros']);
-$seguroTotal = validarFloat($_POST['seguroTotal']);
-$anio = validarEntero($_POST['anio']);
-$km = validarEntero($_POST['km']);
-$precioMinimo = validarFloat($_POST['precioMinimo']);
-$precio = validarFloat($_POST['precio']);
-$categorias = sanitizarArray($_POST['categorias']);
+// la sucursal llega encriptada desde el select (cargado con listar_sucursales.php)
+$idSucursal = desencriptar($_POST['idSucursal'] ?? '');
+if ($idSucursal === false || $idSucursal === '') {
+    $idSucursal = null;
+}
+$marca = sanitizar($_POST['marca'] ?? null);
+$descripcion = sanitizar($_POST['descripcion'] ?? null);
+$modelo = sanitizar($_POST['modelo'] ?? null);
+$potencia = validarEntero($_POST['potencia'] ?? null);
+$estado = validarEntero($_POST['estado'] ?? null);
+$enlaceDocOficial = sanitizar($_POST['enlaceDocOficial'] ?? null);
+$consumo = validarFloat($_POST['consumo'] ?? null);
+$patente = validarFloat($_POST['patente'] ?? null);
+$seguroSOA = validarFloat($_POST['seguroSOA'] ?? null);
+$seguroTerceros = validarFloat($_POST['seguroTerceros'] ?? null);
+$seguroTotal = validarFloat($_POST['seguroTotal'] ?? null);
+$anio = validarEntero($_POST['anio'] ?? null);
+$km = validarEntero($_POST['km'] ?? null);
+$precioMinimo = validarFloat($_POST['precioMinimo'] ?? null);
+$precio = validarFloat($_POST['precio'] ?? null);
+$categorias = sanitizarArray($_POST['categorias'] ?? []);
+
+// Validamos campos obligatorios
+if (empty($idSucursal) || empty($marca) || empty($modelo) || empty($precio)) {
+    echo json_encode(["status" => "error", "message" => "Completa los campos obligatorios: sucursal, marca, modelo y precio."]);
+    exit;
+}
 
 try {
     // Actualizamos usando el id desencriptado
@@ -99,12 +108,12 @@ try {
         ':id' => $id
     ]);
 
-    // Si se mandaron categorias, actualizamos la tabla 'Tiene'
-    if (!empty($categorias) && is_array($categorias)) {
-        // Borramos las relaciones viejas
-        $stmtDel = $con->prepare("DELETE FROM Tiene WHERE idVehiculo = :idVehiculo");
-        $stmtDel->execute([':idVehiculo' => $id]);
+    // Actualizamos la tabla 'Tiene': borramos las relaciones viejas
+    // (si se desmarcaron todas las categorias el vehiculo queda sin categoria)
+    $stmtDel = $con->prepare("DELETE FROM Tiene WHERE idVehiculo = :idVehiculo");
+    $stmtDel->execute([':idVehiculo' => $id]);
 
+    if (!empty($categorias) && is_array($categorias)) {
         // Insertamos las nuevas
         $stmtIns = $con->prepare("INSERT INTO Tiene (idVehiculo, idCategoria) VALUES (:idVehiculo, :idCategoria)");
         foreach ($categorias as $idCat) {
@@ -115,10 +124,9 @@ try {
         }
     }
 
-    
     // --- Manejo de imagenes ---
-    $imgDir = __DIR__ . '/../../img/'; 
-    
+    $imgDir = __DIR__ . '/../../img/';
+
     // eliminamos las imágenes marcadas
     if (!empty($_POST['eliminarImagenes']) && is_array($_POST['eliminarImagenes'])) {
         foreach ($_POST['eliminarImagenes'] as $nombre) {
@@ -129,47 +137,45 @@ try {
             }
         }
     }
-    
+
     // renumeramos las imagenes
     $imagenesVehiculo = [];
     $archivos = scandir($imgDir);
-    
+
     foreach ($archivos as $archivo) {
         if (preg_match('/^' . $id . '_(\d+)\.[a-zA-Z]+$/', $archivo)) {
             $imagenesVehiculo[] = $archivo;
         }
     }
-    // ordenamos las imagenes 
+    // ordenamos las imagenes
     sort($imagenesVehiculo);
-    
+
     foreach ($imagenesVehiculo as $index => $archivoViejo) {
         $nuevoNombre = $id . '_' . ($index + 1) . '.' . pathinfo($archivoViejo, PATHINFO_EXTENSION);
         if ($archivoViejo !== $nuevoNombre) {
             rename($imgDir . $archivoViejo, $imgDir . $nuevoNombre);
         }
     }
-    
+
     // agregamos las nuevas imagenes subidas verificandolas con validarImagen
     if (isset($_FILES["files"]) && is_array($_FILES["files"]["name"])) {
 
-    
         $siguienteNumero = count($imagenesVehiculo);
         $cantidad = count($_FILES["files"]["name"]);
-    
+
         for ($i = 0; $i < $cantidad; $i++) {
             $archivoActual = [
                 'tmp_name' => $_FILES["files"]["tmp_name"][$i],
                 'error'    => $_FILES["files"]["error"][$i]
             ];
-    
-            
+
             $extension = validarImagen($archivoActual);
-    
+
             // Si la imagen no es válida o falló, la salteamos
             if ($extension === false) {
                 continue;
             }
-    
+
             // Incrementamos el contador solo si la imagen es válida (así evitamos huecos)
             $siguienteNumero++;
             $to = $imgDir . $id . "_" . $siguienteNumero . "." . $extension;
@@ -182,6 +188,8 @@ try {
     echo json_encode(["status" => "success", "message" => "Vehiculo modificado con exito."]);
 
 } catch (PDOException $e) {
-    $con->rollBack();
+    if ($con->inTransaction()) {
+        $con->rollBack();
+    }
     echo json_encode(["status" => "error", "message" => "Error: " . $e->getMessage()]);
 }

@@ -9,14 +9,9 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
 
-
-
 try {
     // si la peticion es POST registramos una nueva marca
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-
-
 
         $usuarioInput = sanitizar($_POST['usuario']);
         $direccionInput = sanitizar($_POST['direccion']);
@@ -27,19 +22,30 @@ try {
             exit;
         }
 
-        // Buscamos si el usuario existe para obtener su ID
-        $stmt = $con->prepare("SELECT id FROM Usuarios WHERE usuario = :user");
+        // Solo se aceptan Entrada o Salida
+        if (!in_array($direccionInput, ['Entrada', 'Salida'])) {
+            echo json_encode(["status" => "error", "message" => "Tipo de marca no valido."]);
+            exit;
+        }
+
+        // Buscamos si el usuario existe y esta activo (los dados de baja no pueden marcar)
+        $stmt = $con->prepare("SELECT u.id
+                               FROM Usuarios u
+                               LEFT JOIN Baja b ON u.id = b.idUsuario
+                               WHERE u.usuario = :user AND b.id IS NULL");
         $stmt->execute([':user' => $usuarioInput]);
         $usuario = $stmt->fetch();
 
         if ($usuario) {
             $userId = $usuario['id'];
+            $fechaActual = date('Y-m-d');
             $horaActual = date('H:i:s');
 
-            // Insertamos la marca
-            $stmtInsert = $con->prepare("INSERT INTO RegistroMarca (idUsuario, hora, direccion) VALUES (:idUsuario, :hora, :direccion)");
+            // Insertamos la marca con fecha y hora
+            $stmtInsert = $con->prepare("INSERT INTO RegistroMarca (idUsuario, fecha, hora, direccion) VALUES (:idUsuario, :fecha, :hora, :direccion)");
             $stmtInsert->execute([
                 ':idUsuario' => $userId,
+                ':fecha' => $fechaActual,
                 ':hora' => $horaActual,
                 ':direccion' => $direccionInput
             ]);

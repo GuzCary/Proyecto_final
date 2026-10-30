@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    verificarSesion('limp', () => {
+    // el administrador tambien puede entrar a este panel (desde Config del panel admin)
+    verificarSesion(['limp', 'admin'], (datos) => {
+        if (datos.usuario_rol === 'admin') {
+            document.getElementById('link-admin').hidden = false;
+        }
         activarLogout();
         cargarProductos();
         configurarFormulario();

@@ -2,11 +2,17 @@
 // backend/util/actualizar_contraseñas.php
 // Este script actualiza las contraseñas de los usuarios de prueba con hashes
 // generados por password_hash() de PHP
-// es para uso de desarrollo 
+// es para uso de desarrollo
 // No tiene interfaz grafica ni botones, se accede directamente por URL
 
-
-require_once __DIR__ . '/../config/conexion.php';
+// usamos directamente el usuario de gestion de la DB, porque sin sesion iniciada
+// conexion.php conecta con usr_publico, que no tiene permiso de UPDATE en Usuarios
+$env = require __DIR__ . '/../config/env_load.php';
+$con = new PDO(
+    "mysql:host={$env['DB_HOST']};dbname={$env['DB_NAME']};charset=utf8mb4",
+    $env['DB_USER_GESTION'],
+    $env['DB_PASS_GESTION']
+);
 
 $usuarios = [
     'admin' => 'admin123',

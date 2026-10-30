@@ -22,7 +22,7 @@ async function cargarMarcas() {
             div.classList.add('marca-item');
             div.innerHTML = `
                 <strong>Empleado: ${m.usuario}</strong>
-                <span>Hora: ${m.hora}</span>
+                <span>Fecha: ${m.fecha || 'Sin fecha'} - Hora: ${m.hora}</span>
                 <small>Direccion: ${m.direccion}</small>
             `;
             contenedor.appendChild(div);

@@ -6,8 +6,9 @@
 session_start();
 header("Content-Type: application/json; charset=UTF-8");
 
-// Incluimos la conexion a la db y las funciones de sanitizacion
+// Incluimos la conexion a la db y las funciones de sanitizacion y encriptacion
 require_once __DIR__ . '/../config/conexion.php';
+require_once __DIR__ . '/../seguridad/encriptar.php';
 require_once __DIR__ . '/../seguridad/sanitizar.php';
 
 // Verificamos que el usuario este logueado y sea administrador
@@ -16,17 +17,18 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
     exit;
 }
 
-
-
 // Si la peticion es POST, agregamos un nuevo usuario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuarioInput = sanitizar($_POST['usuario']);
-    $contraseniaInput = sanitizar($_POST['contrasenia']);
-    $rolInput = sanitizar($_POST['rol']);
+    $usuarioInput = sanitizar($_POST['usuario'] ?? '');
+    $contraseniaInput = sanitizar($_POST['contrasenia'] ?? '');
+    $rolInput = sanitizar($_POST['rol'] ?? '');
+    $sucursalEncriptada = $_POST['id_sucursal'] ?? '';
+    $salarioInput = $_POST['salarioPorHora'] ?? '';
+    $salario = validarFloat($salarioInput);
 
     // Validamos campos obligatorios
-    if (empty($usuarioInput) || empty($contraseniaInput) || empty($rolInput)) {
-        echo json_encode(["status" => "error", "message" => "Por favor, completa todos los campos (usuario, contraseña y rol)."]);
+    if (empty($usuarioInput) || empty($contraseniaInput) || empty($rolInput) || empty($sucursalEncriptada)) {
+        echo json_encode(["status" => "error", "message" => "Por favor, completa todos los campos (usuario, contraseña, rol y sucursal)."]);
         exit;
     }
 
@@ -36,9 +38,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // El salario es opcional, pero si viene tiene que ser un numero positivo
+    if ($salarioInput !== '' && ($salario === null || $salario < 0)) {
+        echo json_encode(["status" => "error", "message" => "El salario por hora no es valido."]);
+        exit;
+    }
+
+    // Desencriptamos la sucursal
+    $idSucursal = desencriptar($sucursalEncriptada);
+    if ($idSucursal === false || $idSucursal === '') {
+        echo json_encode(["status" => "error", "message" => "Sucursal invalida."]);
+        exit;
+    }
+
     try {
-        // Verificamos si el nombre de usuario ya existe
-        $stmtCheck = $con->prepare("SELECT id FROM Usuarios WHERE usuario = :usuario");
+        // Verificamos que la sucursal exista
+        $stmtSuc = $con->prepare("SELECT id FROM Sucursal WHERE id = :id");
+        $stmtSuc->execute([':id' => $idSucursal]);
+        if (!$stmtSuc->fetch()) {
+            echo json_encode(["status" => "error", "message" => "La sucursal no existe."]);
+            exit;
+        }
+
+        // Verificamos si el nombre de usuario ya lo usa un usuario ACTIVO
+        // (los dados de baja se ignoran, asi su nombre se puede volver a usar)
+        $stmtCheck = $con->prepare("SELECT u.id
+                                    FROM Usuarios u
+                                    LEFT JOIN Baja b ON u.id = b.idUsuario
+                                    WHERE u.usuario = :usuario AND b.id IS NULL");
         $stmtCheck->execute([':usuario' => $usuarioInput]);
         if ($stmtCheck->fetch()) {
             echo json_encode(["status" => "error", "message" => "El nombre de usuario ya existe."]);
@@ -56,11 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             idSucursal, salarioPorHora, usuario, contraseña, diasDeLicencia,
             fechaDeContrato, diasDeTrabajo, horarioDeEntrada, horarioDeSalida, rol
         ) VALUES (
-            1, NULL, :usuario, :contrasenia, NULL,
+            :idSucursal, :salario, :usuario, :contrasenia, NULL,
             :fechaDeContrato, NULL, NULL, NULL, :rol
         )");
 
         $stmtUser->execute([
+            ':idSucursal' => $idSucursal,
+            ':salario' => $salario,
             ':usuario' => $usuarioInput,
             ':contrasenia' => $hash,
             ':fechaDeContrato' => date('Y-m-d'),
@@ -71,15 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Segun el rol, insertamos en las tablas correspondientes
         if ($rolInput === 'admin' || $rolInput === 'user') {
-            // usamos la licencia de conducir con id = 1 por que es de prueba
-            $idLicencia = 1;
-
-            // Insertamos en Funcionario
-            $stmtFunc = $con->prepare("INSERT INTO Funcionario (id, idLicenciaDeConducir) VALUES (:id, :idLicencia)");
-            $stmtFunc->execute([
-                ':id' => $userId,
-                ':idLicencia' => $idLicencia
-            ]);
+            // Insertamos en Funcionario sin licencia: se carga despues desde Config > Licencias
+            $stmtFunc = $con->prepare("INSERT INTO Funcionario (id, idLicenciaDeConducir) VALUES (:id, NULL)");
+            $stmtFunc->execute([':id' => $userId]);
 
             if ($rolInput === 'admin') {
                 // Insertamos en Administrador

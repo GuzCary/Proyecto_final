@@ -4,16 +4,13 @@ DROP DATABASE IF EXISTS proyecto_final;
 
 CREATE DATABASE proyecto_final;
 
-
 USE proyecto_final;
-
 
 DROP USER IF EXISTS 'usr_publico'@'localhost';
 DROP USER IF EXISTS 'usr_gestion'@'localhost';
 
 CREATE USER 'usr_publico'@'localhost' IDENTIFIED BY 'Publico1234!';
 CREATE USER 'usr_gestion'@'localhost' IDENTIFIED BY 'Gestion1234!';
-
 
 -- tabla que maneja limites de login
 CREATE TABLE intentos_login (
@@ -126,6 +123,7 @@ CREATE TABLE AumentosDeSueldo (
 CREATE TABLE RegistroMarca (
     id INT AUTO_INCREMENT,
     idUsuario INT,
+    fecha DATE,
     hora TIME,
     direccion VARCHAR(100),
     PRIMARY KEY (id),
@@ -214,17 +212,14 @@ CREATE TABLE Tiene (
     FOREIGN KEY (idCategoria) REFERENCES Categoria(id)
 );
 
-
 -- DATOS DE PRUEBA PARA EL SISTEMA DE LOGIN
 -- correr actualizar contraseñas para obtener contraseñas las hasheadas
-
 
 INSERT INTO Sucursal (nombre) VALUES ('Sucursal Central');
 
 INSERT INTO LicenciaDeConducir (tipo, fechaVencimiento) VALUES
 ('Profesional', '2026-12-31'),
 ('Profesional', '2027-12-31');
-
 
 INSERT INTO Usuarios (
     idSucursal,
@@ -275,3 +270,10 @@ GRANT SELECT,INSERT,DELETE ON proyecto_final.intentos_login TO 'usr_publico'@'lo
 GRANT SELECT, INSERT, UPDATE, DELETE ON proyecto_final.* TO 'usr_gestion'@'localhost';
 
 FLUSH PRIVILEGES;
+
+-- SEGURIDAD DEL SERVIDOR (hacer a mano, una sola vez)
+-- El usuario root de MySQL no deberia quedar sin contraseña.
+-- OJO: si usan XAMPP, despues de esto phpMyAdmin pide la contraseña nueva
+-- (se configura en xampp/phpMyAdmin/config.inc.php).
+-- ALTER USER 'root'@'localhost' IDENTIFIED BY 'una_contraseña_segura';
+

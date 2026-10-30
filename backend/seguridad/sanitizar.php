@@ -33,6 +33,21 @@ function validarFloat($dato) {
     return ($limpio !== false) ? $limpio : null;
 }
 
+// esta funcion valida que un dato sea una fecha real con formato AAAA-MM-DD
+// devuelve la fecha si es valida o null si no lo es
+function validarFecha($dato) {
+    if ($dato === '' || $dato === null) {
+        return null;
+    }
+
+    $fecha = DateTime::createFromFormat('Y-m-d', $dato);
+    // comparamos con el formato para rechazar fechas como 2025-02-31
+    if ($fecha === false || $fecha->format('Y-m-d') !== $dato) {
+        return null;
+    }
+    return $dato;
+}
+
 // esta funcion valida que las imagenes subidas sean de los tipos de datos permitidos, si lo son los devuelve y sino devuelve false
 function validarImagen($archivo) {
 
@@ -48,18 +63,14 @@ function validarImagen($archivo) {
         "image/gif"  => "gif"
     ];
 
-
     $info = getimagesize($archivo['tmp_name']);
-
 
     if ($info === false || !isset($extensionesPermitidas[$info["mime"]])) {
         return false;
     }
 
-
     return $extensionesPermitidas[$info["mime"]];
 }
-
 
 // esta funcion sanitiza arrays, incluso con arrays dentro
 function sanitizarArray($datos) {

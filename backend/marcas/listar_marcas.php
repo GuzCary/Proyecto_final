@@ -14,13 +14,13 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
     exit;
 }
 
-// si la peticion es GET enviamos todas las marcas 
+// si la peticion es GET enviamos todas las marcas
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $sql = "SELECT rm.id, u.usuario, rm.hora, rm.direccion 
+    $sql = "SELECT rm.id, u.usuario, rm.fecha, rm.hora, rm.direccion
             FROM RegistroMarca rm
             INNER JOIN Usuarios u ON rm.idUsuario = u.id
-            ORDER BY rm.hora DESC";
-            
+            ORDER BY rm.fecha DESC, rm.hora DESC";
+
     $stmt = $con->prepare($sql);
     $stmt->execute();
     $marcas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -31,6 +31,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     ]);
     exit;
 }
-
-
-

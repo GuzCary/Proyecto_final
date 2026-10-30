@@ -17,7 +17,7 @@ require_once __DIR__ . '/intentos.php';
 // revisamos si esta bloqueado
 if (estaBloqueado($con)) {
     echo json_encode([
-        "status" => "error", 
+        "status" => "error",
         "message" => "Demasiados intentos fallidos. Has sido bloqueado por 1 minuto."
     ]);
     exit;
@@ -36,7 +36,14 @@ if (empty($usuarioInput) || empty($contraseniaInput)) {
 try {
     // Buscamos al usuario por su nombre de usuario
     // traemos el hash almacenado
-    $stmt = $con->prepare("SELECT id, usuario, contraseña, rol FROM Usuarios WHERE usuario = :user");
+    // como un nombre de usuario dado de baja se puede reutilizar, puede haber varios con el mismo nombre:
+    // priorizamos el usuario activo (sin registro en Baja) y despues el mas nuevo
+    $stmt = $con->prepare("SELECT u.id, u.usuario, u.contraseña, u.rol
+                           FROM Usuarios u
+                           LEFT JOIN Baja b ON u.id = b.idUsuario
+                           WHERE u.usuario = :user
+                           ORDER BY (b.id IS NULL) DESC, u.id DESC
+                           LIMIT 1");
     $stmt->execute([':user' => $usuarioInput]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -44,7 +51,6 @@ try {
     if ($usuario && password_verify($contraseniaInput, $usuario['contraseña'])) {
         $userId = $usuario['id'];
 
-        
         // Verificamos si el usuario está registrado en la tabla Baja
         $stmtBaja = $con->prepare("SELECT tipo, fecha FROM Baja WHERE idUsuario = :id");
         $stmtBaja->execute([':id' => $userId]);
@@ -57,7 +63,6 @@ try {
             ]);
             exit;
         }
-       
 
         $rol = $usuario['rol'];
         $verificado = false;
@@ -98,7 +103,6 @@ try {
                 "rol" => $rol
             ]);
         } else {
-          
 
             // si el rol de Usuarios no coincide con ninguna tabla secundaria damos error
             echo json_encode([

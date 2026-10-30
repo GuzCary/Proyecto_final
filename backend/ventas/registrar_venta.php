@@ -10,7 +10,6 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../seguridad/encriptar.php';
 
-
 // Verificamos que sea POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(["status" => "error", "message" => "Método no permitido."]);
@@ -40,23 +39,37 @@ if ($idVehiculo === false || $idVehiculo === '') {
 $idFuncionario = $_SESSION['usuario_id']; // El usuario logueado
 
 try {
-    // 1. Verificamos que el vehículo exista y no esté vendido
-    $stmtCheck = $con->prepare("SELECT id, marca, modelo, precio FROM Vehiculo WHERE id = :id");
+    // usamos una transaccion para que dos vendedores no vendan el mismo auto a la vez
+    $con->beginTransaction();
+
+    // 1. Verificamos que el vehículo exista (bloqueamos la fila hasta terminar)
+    $stmtCheck = $con->prepare("SELECT id, marca, modelo, precio FROM Vehiculo WHERE id = :id FOR UPDATE");
     $stmtCheck->execute([':id' => $idVehiculo]);
     $vehiculo = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
     if (!$vehiculo) {
+        $con->rollBack();
         echo json_encode(["status" => "error", "message" => "El vehículo seleccionado no existe."]);
         exit;
     }
 
-    // 2. Registramos la venta con la fecha actual (CURDATE())
+    // 2. Verificamos que no esté vendido
+    $stmtVendido = $con->prepare("SELECT idVenta FROM Ventas WHERE idVehiculo = :id");
+    $stmtVendido->execute([':id' => $idVehiculo]);
+    if ($stmtVendido->fetch()) {
+        $con->rollBack();
+        echo json_encode(["status" => "error", "message" => "Este vehículo ya fue vendido."]);
+        exit;
+    }
+
+    // 3. Registramos la venta con la fecha actual (CURDATE())
     $stmtVenta = $con->prepare("INSERT INTO Ventas (idVehiculo, idFuncionario, fecha) VALUES (:idVehiculo, :idFuncionario, CURDATE())");
     $stmtVenta->execute([
         ':idVehiculo'    => $idVehiculo,
         ':idFuncionario' => $idFuncionario
     ]);
 
+    $con->commit();
 
     echo json_encode([
         "status"  => "success",
@@ -65,6 +78,9 @@ try {
     exit;
 
 } catch (PDOException $e) {
+    if ($con->inTransaction()) {
+        $con->rollBack();
+    }
     echo json_encode(["status" => "error", "message" => "Error al registrar la venta: " . $e->getMessage()]);
     exit;
 }

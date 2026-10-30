@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Transacciones</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../admin-menu.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Admin - Transacciones de Caja</h1>
+        <nav class="nav">
+            <a href="../vehiculos/index.html">Vehículos</a>
+            <a href="../categorias/index.html">Categorías</a>
+            <a href="../usuarios/index.html">Usuarios</a>
+            <a href="../marcas/index.html">Marcas</a>
+        </nav>
+        <div class="header-acciones">
+            <div class="config-menu">
+                <button type="button" class="config-toggle" aria-haspopup="true" aria-expanded="false">⚙ Config ▾</button>
+                <div class="config-dropdown" role="menu">
+                    <span class="config-grupo">Empresa</span>
+                    <a href="../sucursales/index.html">📍 Sucursales</a>
+                    <a href="../transacciones/index.html">💵 Transacciones de caja</a>
+                    <hr>
+                    <span class="config-grupo">Personal</span>
+                    <a href="../licencias/index.html">🪪 Licencias de conducir</a>
+                    <a href="../sanciones/index.html">⚠️ Sanciones</a>
+                    <a href="../aumentos/index.html">📈 Aumentos de sueldo</a>
+                    <a href="../bajas/index.html">🗂️ Historial de bajas</a>
+                    <hr>
+                    <span class="config-grupo">Otros paneles</span>
+                    <a href="../../vendedor/ventas/index.html">🧾 Ventas</a>
+                    <a href="../../limpieza/productos/index.html">🧴 Insumos de limpieza</a>
+                </div>
+            </div>
+            <button id="btnLogout" class="btn-logout">Salir</button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <section class="card">
+            <h2>Registrar Movimiento</h2>
+            <form id="form-transaccion" class="form-grid dos-columnas">
+                <div class="form-group">
+                    <label for="id_sucursal">Sucursal</label>
+                    <select id="id_sucursal" name="id_sucursal" required>
+                        <option value="">Cargando sucursales...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="Ingreso">Ingreso (entra dinero)</option>
+                        <option value="Egreso">Egreso (sale dinero)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="monto">Monto ($)</label>
+                    <input type="number" id="monto" name="monto" min="0.01" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha">Fecha</label>
+                    <input type="date" id="fecha" name="fecha" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="justificacion">Justificación</label>
+                    <input type="text" id="justificacion" name="justificacion" maxlength="255" required placeholder="Ej: Pago de luz, seña de cliente...">
+                </div>
+
+                <div class="form-acciones full-width">
+                    <button type="submit" class="btn-primary">Registrar</button>
+                </div>
+            </form>
+            <div id="mensaje" class="mensaje-alerta"></div>
+        </section>
+
+        <section class="card">
+            <h2>Movimientos</h2>
+
+            <div class="filtros">
+                <div class="form-group">
+                    <label for="filtro-sucursal">Sucursal</label>
+                    <select id="filtro-sucursal">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filtro-desde">Desde</label>
+                    <input type="date" id="filtro-desde">
+                </div>
+                <div class="form-group">
+                    <label for="filtro-hasta">Hasta</label>
+                    <input type="date" id="filtro-hasta">
+                </div>
+                <div class="form-acciones">
+                    <button type="button" id="btn-filtrar" class="btn-primary">Filtrar</button>
+                    <button type="button" id="btn-limpiar" class="btn-secondary">Limpiar</button>
+                </div>
+            </div>
+
+            <div class="totales">
+                <div class="total-caja"><span>Ingresos</span><strong id="total-ingresos" class="monto-ingreso">$0</strong></div>
+                <div class="total-caja"><span>Egresos</span><strong id="total-egresos" class="monto-egreso">$0</strong></div>
+                <div class="total-caja"><span>Balance</span><strong id="total-balance">$0</strong></div>
+            </div>
+
+            <div class="tabla-scroll">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Sucursal</th>
+                            <th>Tipo</th>
+                            <th class="num">Monto</th>
+                            <th>Justificación</th>
+                            <th>Registró</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-transacciones"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="../../auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

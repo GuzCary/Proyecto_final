@@ -1,0 +1,150 @@
+/* front-end/admin/admin-menu.css
+   Estilos compartidos del header de administración: menú desplegable "⚙ Config"
+   Se incluye en todas las páginas de /admin después del style.css de cada módulo */
+
+.header-acciones {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.config-menu {
+    position: relative;
+}
+
+.config-toggle {
+    background: transparent;
+    color: #333333;
+    border: 1px solid #999999;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.config-toggle:hover,
+.config-menu.abierto .config-toggle {
+    background: #cccccc;
+}
+
+.config-toggle.active {
+    font-weight: bold;
+    border-color: #333333;
+}
+
+.config-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    min-width: 220px;
+    background: #ffffff;
+    border: 1px solid #999999;
+    box-shadow: 3px 3px 0 #bbbbbb;
+    z-index: 100;
+    padding: 4px 0;
+}
+
+.config-menu.abierto .config-dropdown {
+    display: block;
+}
+
+.config-grupo {
+    display: block;
+    padding: 6px 12px 2px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #777777;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.config-dropdown a {
+    display: block;
+    padding: 6px 12px;
+    color: #222222;
+    text-decoration: none;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+}
+
+.config-dropdown a:hover {
+    background: #f4f4f4;
+    border-left-color: #999999;
+}
+
+.config-dropdown a.active {
+    font-weight: bold;
+    background: #fafafa;
+    border-left-color: #333333;
+}
+
+.config-dropdown hr {
+    border: none;
+    border-top: 1px solid #cccccc;
+    margin: 4px 0;
+}
+
+/* en pantallas chicas el desplegable se alinea a la izquierda para no salirse */
+@media (max-width: 600px) {
+    .config-dropdown {
+        right: auto;
+        left: 0;
+    }
+}
+
+/* ---- Componentes comunes de los módulos nuevos ---- */
+
+/* tablas simples para listados históricos (bajas, sanciones, aumentos, transacciones) */
+.tabla-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: #ffffff;
+}
+
+.tabla th,
+.tabla td {
+    border: 1px solid #cccccc;
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.tabla th {
+    background: #eeeeee;
+    font-size: 13px;
+}
+
+.tabla tr:nth-child(even) td {
+    background: #fafafa;
+}
+
+.tabla .num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* etiquetas de estado */
+.etiqueta {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 12px;
+    border: 1px solid #999999;
+    background: #eeeeee;
+    white-space: nowrap;
+}
+
+.etiqueta.ok { background: #d4edda; border-color: #8fc79c; color: #155724; }
+.etiqueta.alerta { background: #fff3cd; border-color: #e0c56e; color: #856404; }
+.etiqueta.mal { background: #f8d7da; border-color: #d99aa1; color: #721c24; }
+
+.texto-vacio {
+    color: #777777;
+    font-size: 14px;
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Aumentos de Sueldo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../admin-menu.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Admin - Aumentos de Sueldo</h1>
+        <nav class="nav">
+            <a href="../vehiculos/index.html">Vehículos</a>
+            <a href="../categorias/index.html">Categorías</a>
+            <a href="../usuarios/index.html">Usuarios</a>
+            <a href="../marcas/index.html">Marcas</a>
+        </nav>
+        <div class="header-acciones">
+            <div class="config-menu">
+                <button type="button" class="config-toggle" aria-haspopup="true" aria-expanded="false">⚙ Config ▾</button>
+                <div class="config-dropdown" role="menu">
+                    <span class="config-grupo">Empresa</span>
+                    <a href="../sucursales/index.html">📍 Sucursales</a>
+                    <a href="../transacciones/index.html">💵 Transacciones de caja</a>
+                    <hr>
+                    <span class="config-grupo">Personal</span>
+                    <a href="../licencias/index.html">🪪 Licencias de conducir</a>
+                    <a href="../sanciones/index.html">⚠️ Sanciones</a>
+                    <a href="../aumentos/index.html">📈 Aumentos de sueldo</a>
+                    <a href="../bajas/index.html">🗂️ Historial de bajas</a>
+                    <hr>
+                    <span class="config-grupo">Otros paneles</span>
+                    <a href="../../vendedor/ventas/index.html">🧾 Ventas</a>
+                    <a href="../../limpieza/productos/index.html">🧴 Insumos de limpieza</a>
+                </div>
+            </div>
+            <button id="btnLogout" class="btn-logout">Salir</button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <section class="card">
+            <h2>Registrar Aumento</h2>
+            <form id="form-aumento" class="form-grid dos-columnas">
+                <div class="form-group full-width">
+                    <label for="id_usuario">Empleado</label>
+                    <select id="id_usuario" name="id_usuario" required>
+                        <option value="">Cargando empleados...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo de aumento</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="Porcentaje">Porcentaje (%)</option>
+                        <option value="Monto fijo">Monto fijo ($ por hora)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="valor">Valor</label>
+                    <input type="number" id="valor" name="valor" min="0.01" step="0.01" required>
+                </div>
+
+                <p id="vista-previa" class="aviso full-width">Elegí un empleado para ver su salario actual.</p>
+
+                <div class="form-acciones full-width">
+                    <button type="submit" id="btn-guardar" class="btn-primary">Registrar aumento</button>
+                </div>
+            </form>
+            <div id="mensaje" class="mensaje-alerta"></div>
+        </section>
+
+        <section class="card">
+            <h2>Historial de Aumentos</h2>
+            <div class="tabla-scroll">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Empleado</th>
+                            <th>Tipo</th>
+                            <th class="num">Valor</th>
+                            <th class="num">Salario actual</th>
+                            <th>Otorgó</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-aumentos"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="../../auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

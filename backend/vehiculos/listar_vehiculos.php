@@ -97,6 +97,8 @@ try {
         }
 
         $vehiculo['id'] = encriptar($vehiculo['id']);
+        // la sucursal tambien viaja encriptada (el panel admin la usa para el select)
+        $vehiculo['idSucursal'] = encriptar($vehiculo['idSucursal']);
     }
     unset($vehiculo);
 

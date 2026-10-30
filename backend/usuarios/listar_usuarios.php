@@ -20,9 +20,11 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_rol'] !== 'admin') {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         // Excluimos a los usuarios que tengan un registro en la tabla Baja
-        $sql = "SELECT u.id, u.usuario, u.rol, u.fechaDeContrato
+        $sql = "SELECT u.id, u.usuario, u.rol, u.fechaDeContrato, u.salarioPorHora,
+                       u.idSucursal, s.nombre AS sucursal
                 FROM Usuarios u
                 LEFT JOIN Baja b ON u.id = b.idUsuario
+                LEFT JOIN Sucursal s ON u.idSucursal = s.id
                 WHERE b.id IS NULL
                 ORDER BY u.usuario ASC";
 
@@ -31,10 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Encriptamos los IDs antes de enviarlos al frontend
+        // y marcamos cual es el usuario logueado (para no permitir que se de de baja a si mismo)
         foreach ($usuarios as &$usuario) {
+            $usuario['esYo'] = $usuario['id'] == $_SESSION['usuario_id'];
             $usuario['id'] = encriptar($usuario['id']);
+            $usuario['idSucursal'] = $usuario['idSucursal'] !== null ? encriptar($usuario['idSucursal']) : null;
+            $usuario['salarioPorHora'] = $usuario['salarioPorHora'] !== null ? (float)$usuario['salarioPorHora'] : null;
         }
-        unset($usuario); 
+        unset($usuario);
 
         echo json_encode([
             "status" => "success",

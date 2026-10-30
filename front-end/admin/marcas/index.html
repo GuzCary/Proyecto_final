@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Marcas</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../admin-menu.css">
 </head>
 <body>
 
@@ -16,7 +17,27 @@
             <a href="../usuarios/index.html">Usuarios</a>
             <a href="../marcas/index.html" class="active">Marcas</a>
         </nav>
-        <button id="btnLogout" class="btn-logout">Salir</button>
+        <div class="header-acciones">
+            <div class="config-menu">
+                <button type="button" class="config-toggle" aria-haspopup="true" aria-expanded="false">⚙ Config ▾</button>
+                <div class="config-dropdown" role="menu">
+                    <span class="config-grupo">Empresa</span>
+                    <a href="../sucursales/index.html">📍 Sucursales</a>
+                    <a href="../transacciones/index.html">💵 Transacciones de caja</a>
+                    <hr>
+                    <span class="config-grupo">Personal</span>
+                    <a href="../licencias/index.html">🪪 Licencias de conducir</a>
+                    <a href="../sanciones/index.html">⚠️ Sanciones</a>
+                    <a href="../aumentos/index.html">📈 Aumentos de sueldo</a>
+                    <a href="../bajas/index.html">🗂️ Historial de bajas</a>
+                    <hr>
+                    <span class="config-grupo">Otros paneles</span>
+                    <a href="../../vendedor/ventas/index.html">🧾 Ventas</a>
+                    <a href="../../limpieza/productos/index.html">🧴 Insumos de limpieza</a>
+                </div>
+            </div>
+            <button id="btnLogout" class="btn-logout">Salir</button>
+        </div>
     </header>
 
     <main class="main-container">

@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     verificarSesion('admin', () => {
         activarLogout();
+        cargarSucursales();
         cargarCategoriasCheckbox();
         cargarVehiculos();
         configurarFormulario();
@@ -17,6 +18,31 @@ const contenedorImagenesExistentes = document.getElementById('contenedor-imagene
 const mensaje = document.getElementById('mensaje');
 
 let vehiculosGuardados = [];
+
+// Carga las sucursales en el select (los valores son los ids encriptados)
+async function cargarSucursales() {
+    const select = document.getElementById('idSucursal');
+    try {
+        const res = await fetch('../../../backend/sucursales/listar_sucursales.php');
+        const data = await res.json();
+        select.innerHTML = '';
+
+        if (data.status !== 'success' || !data.sucursales || data.sucursales.length === 0) {
+            select.innerHTML = '<option value="">No hay sucursales (crealas en Config &gt; Sucursales)</option>';
+            return;
+        }
+
+        data.sucursales.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            // el nombre viene escapado desde el backend, por eso usamos innerHTML
+            opt.innerHTML = s.nombre;
+            select.appendChild(opt);
+        });
+    } catch (e) {
+        select.innerHTML = '<option value="">Error al cargar sucursales</option>';
+    }
+}
 
 async function cargarCategoriasCheckbox() {
     try {
@@ -141,6 +167,7 @@ function prepararEdicion(idEncriptado) {
 
     // Completamos los campos del formulario
     document.getElementById('id').value = v.id;
+    document.getElementById('idSucursal').value = v.idSucursal || '';
     document.getElementById('marca').value = v.marca || '';
     document.getElementById('modelo').value = v.modelo || '';
     document.getElementById('precio').value = v.precio || '';
